@@ -8,10 +8,13 @@
     function Game()
     {
         this.gameInstance = null;
+        this.width = Math.min( ( Math.round( window.screen.width ) * 0.9 ), 1024 );
+        this.height = Math.round( ( this.width / 16 ) * 9 );
+        this.scaleCoef = this.width / 1024 / 2; // Retina
         
         window.addEventListener( 'load', function()
         {
-            this.gameInstance = new Phaser.Game( 480, 240, Phaser.AUTO, "" );
+            this.gameInstance = new Phaser.Game( this.width, this.height, Phaser.AUTO, "" );
             
             setTimeout( function()
             { 
@@ -31,63 +34,80 @@
     
     GameContext.prototype.preload = function()
     {
-        this.game.load.image( "road",     "/sprites/nivel3/road.png" );
-        this.game.load.image( "car",      "/sprites/nivel3/car.png" );
+        this.game.load.image( "background", "/sprites/nivel3/03_fondo-01.png" );
+        this.game.load.image( "road", "/sprites/nivel3/03_camino-loop.png" );
+        this.game.load.image( "car", "/sprites/nivel3/car.png" );
         this.game.load.image( "obstacle", "/sprites/nivel3/obstacle.png" );
-        this.game.load.image( "target",   "/sprites/nivel3/target.png" );
+        this.game.load.image( "target", "/sprites/nivel3/target.png" );
     }
-    
+
+    GameContext.prototype.loadBackground = function()
+    {
+        // Load background
+        this.backgroundTile = this.game.add.tileSprite( 0, 0, this.game.width, this.game.height, 'background' );
+        this.backgroundTile.tileScale.y = 0.5;
+        this.backgroundTile.tileScale.x = 0.5;
+
+        // Load road
+        this.roadTile = this.game.add.tileSprite( 
+            0, 
+            this.game.height - this.game.cache.getImage( 'road' ).height / 2, 
+            this.game.width * 4,
+            this.game.cache.getImage( 'road' ).height, 
+            'road' 
+        );
+        this.roadTile.scale.x = 0.5;
+        this.roadTile.scale.y = 0.5;
+    }
+
     GameContext.prototype.create = function()
     {
         // Start physics
         this.game.physics.startSystem( Phaser.Physics.ARCADE );
-        this.game.add.sprite( 0, 0, "road" );
         
         // Initialize parameters
-        this.numberLanes   = 3;
+        this.maxNumberLanes = 3;
         this.obstacleSpeed = 350;
         this.obstacleDelay = 1400;
-        this.carTurnSpeed  = 250;
-        
-        this.obstacleGroup = this.game.add.group();
-        this.targetGroup   = this.game.add.group();
-        
-        // Set game listeners
-        this.gameEvents = new GameEvents( this );
-        
-        // Set posible entities positions
-        this.entitiesPositions = [];
-        for( var i = 0; i < this.numberLanes; i++ )
-        {
-            this.entitiesPositions.push( this.game.height * ( ( i * 2 ) + 1 ) / 6 );
-        }
-        
-        // Initialize car
-        this.car           = this.game.add.sprite( 60, this.entitiesPositions[ 0 ], "car" );
-        this.game.physics.enable( this.car, Phaser.Physics.ARCADE );
-        
-        this.car.curLane   = 0;
-        this.car.body.allowRotation = false;
-        this.car.body.moves         = false;
-        this.car.anchor.set( 0.5 );
-        
+
         // Game Bar
         this.gasBar = new GasBar( this );
         
+        // Score
+        this.score = new Score( this );
+
+        // Load Background
+        this.loadBackground();
+
+        // Obstacle / Target Groups
+        this.obstacleGroup = this.game.add.group();
+        this.targetGroup   = this.game.add.group();
+
+        // Initialize car
+        this.car = new Car( this );
+
         // Game Loop
-        this.currentLoop = this.game.time.events.loop( this.obstacleDelay, this.loop.bind( this ) );
+        this.gameLoop = this.game.time.events.loop( this.obstacleDelay, this.gameLoop.bind( this ) );
     }
     
     GameContext.prototype.update = function()
     {
-        this.game.physics.arcade.collide( this.car, this.obstacleGroup, function()
+        // Background movement
+        this.roadTile.x -= 4;
+
+        // Car against obstacle
+        this.game.physics.arcade.collide( this.car.carSprite, this.obstacleGroup, function()
         {
             this.stop();
         }.bind( this ) );
         
-        this.game.physics.arcade.collide( this.car, this.targetGroup, function( c, t )
+        // Car against gas
+        this.game.physics.arcade.collide( this.car.carSprite, this.targetGroup, function( c, t )
         {
             t.destroy();
+
+            this.gasBar.add( 40 );
+            this.score.addScore( 20 );
         }.bind( this ) );
     }
     
@@ -98,14 +118,16 @@
     
     GameContext.prototype.stop = function()
     {
-        this.game.time.events.remove( this.currentLoop );
-        this.gameEvents.disableEvents();
+        this.game.time.events.remove( this.gameLoop );
+        this.game.time.events.remove( this.gasBar.loop );
+        
+        this.car.stop();
         
         this.obstacleSpeed = 0;
         this.targetSpeed = 0;
     }
     
-    GameContext.prototype.loop = function()
+    GameContext.prototype.gameLoop = function()
     {
         if( this.game.rnd.between( 0, 1 ) == 1 )
         {
@@ -120,68 +142,10 @@
             this.targetGroup.add( target );
         }
     }
-    
-    /***************************
-     * GAME EVENTS
-     ***************************/
-    function GameEvents( gameContext )
+
+    GameContext.prototype.addScore = function( score )
     {
-        this.gameContext = gameContext;
-        
-        this.keyUp = this.gameContext.game.input.keyboard.addKey( Phaser.Keyboard.UP );
-        this.keyDown = this.gameContext.game.input.keyboard.addKey( Phaser.Keyboard.DOWN );
-        
-        this.keyUp.onDown.add( this.moveCar.bind( this.gameContext, -1 ) );
-        this.keyDown.onDown.add( this.moveCar.bind( this.gameContext, 1 ) );
-    }
-    
-    GameEvents.prototype.moveCar = function( direction )
-    {
-        if( this.car.curLane + direction < 0 || this.car.curLane + direction > this.numberLanes -1 )
-        {
-            return;
-        }
-        
-        this.car.curLane += direction;
-        
-        this.game.add.tween( this.car ).to( 
-            {
-                angle: 20 - 40 * ( direction == -1 ? 1 : 0 )
-            }, 
-            this.carTurnSpeed / 2, 
-            Phaser.Easing.Linear.None, 
-            true
-        ).onComplete.add( function()
-        {
-            this.game.add.tween( this.car ).to(
-                {
-                    angle: 0
-                }, 
-                this.carTurnSpeed / 2, 
-                Phaser.Easing.Linear.None, 
-                true 
-            );
-        }.bind( this ) );
-        
-        this.game.add.tween( this.car ).to(
-            { 
-                y: this.entitiesPositions[ this.car.curLane ],
-            }, 
-            this.carTurnSpeed, 
-            Phaser.Easing.Linear.None, 
-            true 
-        );
-    }
-    
-    GameEvents.prototype.disableEvents = function()
-    {
-        this.keyUp.enabled = false;
-        this.keyDown.enabled = false;
-        
-        for( var i = 0; i < this.gameContext.tweens._tweens.length; i++ )
-        {
-            this.gameContext.tweens._tweens[i].stop();
-        }
+        this.score
     }
     
     /***************************
@@ -191,12 +155,20 @@
     {
         this.gameContext = gameContext;
         
-        var position = this.gameContext.game.rnd.between( 0, this.gameContext.numberLanes - 1 );   
+        this.obstaclePositions = [];
+
+        // Set obstacles positions
+        for( var i = 0; i < this.gameContext.maxNumberLanes; i++ )
+        {
+            this.obstaclePositions.push( this.gameContext.game.height * ( ( i * 2 ) + 1 ) / 6 );
+        }
+
+        var position = this.gameContext.game.rnd.between( 0, this.gameContext.maxNumberLanes - 1 );   
         Phaser.Sprite.call( 
             this, 
             this.gameContext.game, 
             this.gameContext.game.width + 20,
-            this.gameContext.entitiesPositions[ position ],
+            this.obstaclePositions[ position ],
             "obstacle" 
         );
         
@@ -226,12 +198,20 @@
     {
         this.gameContext = gameContext;
         
-        var position = this.gameContext.game.rnd.between( 0, this.gameContext.numberLanes - 1 );
+        this.targetPositions = [];
+
+        // Set target positions
+        for( var i = 0; i < this.gameContext.maxNumberLanes; i++ )
+        {
+            this.targetPositions.push( this.gameContext.game.height * ( ( i * 2 ) + 1 ) / 6 );
+        }
+
+        var position = this.gameContext.game.rnd.between( 0, this.gameContext.maxNumberLanes - 1 );
         Phaser.Sprite.call( 
             this, 
             this.gameContext.game,
             this.gameContext.game.width + 20,
-            this.gameContext.entitiesPositions[ position ],
+            this.targetPositions[ position ],
             "target"
         );
         
@@ -259,23 +239,200 @@
      ***************************/
     function GasBar( gameContext )
     {
-        this.gameContext = gameContext;
-        
-        var graphics = this.gameContext.game.add.graphics( 20, 20 );
-        graphics.lineStyle( 10, 0x33FF00 );
-        graphics.lineTo( 100, 0 );
+        this.gameContext   = gameContext;
+
+        this.x             = 20;
+        this.y             = 20;
+        this.currentGas    = 100;
+        this.color         = 0x33FF00;
+        this.gasBarGraphic = this.drawGasBar();
+        this.loop          = this.gameContext.game.time.events.loop( 500, this.gasLoop.bind( this ) );
     }
     
     GasBar.prototype.add = function( quantity )
     {
-        
+        if( this.currentGas + quantity > 100 )
+        {
+            this.currentGas = 100;
+        }
+        else
+        {
+            this.currentGas += quantity;
+        }
+
+        this.gasLoop( true );
     }
     
     GasBar.prototype.sustract = function( quantity )
     {
-        
+        this.currentGas -= quantity;
+
+        if( this.currentGas <= 0 )
+        {
+            this.gameContext.stop();
+        }
+    }
+
+    GasBar.prototype.drawGasBar = function()
+    {
+        var graphic = this.gameContext.game.add.graphics( this.x, this.y );
+        graphic.lineStyle( 10, this.color );
+        graphic.lineTo( this.currentGas, 0 );
+
+        return graphic;
+    }
+
+    GasBar.prototype.gasLoop = function( force )
+    {
+        if( !force )
+        {
+            this.sustract( 5 );
+        }
+
+        this.setColor();
+        this.gasBarGraphic.destroy();
+        this.gasBarGraphic = this.drawGasBar();
+    }
+
+    GasBar.prototype.setColor = function()
+    {
+        if( this.currentGas < 31 )
+        {
+            this.color = 0xFF0000;   
+        }
+        else if( this.currentGas < 61 )
+        {
+            this.color = 0xF7FE2E;
+        }
+        else
+        {
+            this.color = 0x33FF00;
+        }
     }
     
+    /***************************
+     * SCORE
+     ***************************/
+    function Score( gameContext )
+    {
+        this.gameContext = gameContext;
+
+        this.score       = 0;
+        this.x           = this.gameContext.game.width - 100;
+        this.y           = 16;
+        this.scoreText   = this.drawScore();
+    }
+
+    Score.prototype.drawScore = function()
+    {
+        return this.gameContext.game.add.text( 
+            this.x, 
+            this.y, 
+            this.score, 
+            { fontSize: '32px', fill: '#FFF' } 
+        );
+    }
+
+    Score.prototype.addScore = function( value )
+    {
+        this.score += value;
+
+        this.scoreText.text = this.score;
+
+        return this.score;
+    }
+
+    /***************************
+     * SCORE
+     ***************************/
+    function Car( gameContext )
+    {
+        this.gameContext = gameContext;
+        
+        this.carTurnSpeed = 250;
+        this.currentLane = 0;
+        this.carPositions = [];        
+        
+        // Set car positions
+        for( var i = 0; i < this.gameContext.maxNumberLanes; i++ )
+        {
+            this.carPositions.push( this.gameContext.game.height * ( ( i * 2 ) + 1 ) / 6 );
+        }
+
+        // Car Sprite
+        this.carSprite = this.gameContext.game.add.sprite( 60, this.carPositions[ 0 ], "car" );
+        
+        // Enable physics
+        this.gameContext.game.physics.enable( this.carSprite, Phaser.Physics.ARCADE );
+
+        this.carSprite.body.allowRotation = false;
+        this.carSprite.body.moves = false;
+        this.carSprite.anchor.set( 0.5 );
+
+        // Events
+        this.keyUp = this.gameContext.game.input.keyboard.addKey( Phaser.Keyboard.UP );
+        this.keyDown = this.gameContext.game.input.keyboard.addKey( Phaser.Keyboard.DOWN );
+        
+        this.keyUp.onDown.add( this.move.bind( this, -1 ) );
+        this.keyDown.onDown.add( this.move.bind( this, 1 ) );
+    }
+
+    Car.prototype.move = function( direction )
+    {
+        if( this.currentLane + direction < 0 || this.currentLane + direction > this.gameContext.maxNumberLanes -1 )
+        {
+            return;
+        }
+        
+        this.currentLane += direction;
+        
+        this.steerTween = this.gameContext.game.add.tween( this.carSprite ).to( 
+            {
+                angle: 20 - 40 * ( direction == -1 ? 1 : 0 )
+            }, 
+            this.carTurnSpeed / 2, 
+            Phaser.Easing.Linear.None, 
+            true
+        );
+
+        this.steerTween.onComplete.add( function()
+        {
+            this.gameContext.game.add.tween( this.carSprite ).to(
+                {
+                    angle: 0
+                }, 
+                this.gameContext.carTurnSpeed / 2, 
+                Phaser.Easing.Linear.None, 
+                true 
+            );
+
+            this.steerTween = null;
+        }.bind( this ) );
+        
+        this.movementTween = this.gameContext.game.add.tween( this.carSprite ).to(
+            { 
+                y: this.carPositions[ this.currentLane ],
+            }, 
+            this.carTurnSpeed, 
+            Phaser.Easing.Linear.None, 
+            true 
+        );
+
+        this.movementTween.onComplete.add( function()
+        {
+            this.movementTween = null;
+        }.bind( this ) );
+    }
+
+    Car.prototype.stop = function()
+    {
+        this.keyUp.enabled = false;
+        this.keyDown.enabled = false;
+        
+        this.steerTween.stop();
+        this.movementTween.stop();
+    }
+
     // Init
     new Game();
 } )( top, Phaser );
