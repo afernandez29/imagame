@@ -2,6 +2,11 @@ var game;
 
 var score = 0;
 
+var star;
+var starGroup;
+var starDelay = 3000;
+var starSound;
+
 var ship;
 var shipPosition;
 var shipPositionsX;
@@ -13,6 +18,7 @@ var barrierGroup;
 var barrierPositionsX;
 var barrierSpeed = 150;
 var barrierDelay = 2000;
+var barrierPosition = 0;
 
 
 var whale;
@@ -53,6 +59,8 @@ playGame.prototype = {
           game.load.audio('boatSound', ['/music/nivel2/boat.mp3', '/music/nivel2/boat.ogg']);
           game.load.audio('whaleSound', ['/music/nivel2/whale.mp3', '/music/nivel2/whale.ogg']);
           game.load.audio('boatMoveSound', ['/music/nivel2/boatMove.mp3', '/music/nivel2/boatMove.ogg']);
+          game.load.audio('starSound', ['/music/nivel2/Ding.mp3', '/music/nivel2/Ding.ogg']);
+          game.load.spritesheet('star', '/sprites/nivel2/01-04_estrella_bonus.png', 157, 150, 8);
      },
      create: function(){
 
@@ -74,11 +82,14 @@ playGame.prototype = {
 
           game.time.events.loop(barrierDelay, function(){
                addBarrier();
-
           });
 
           game.time.events.loop(whaleDelay, function(){
                addWhale();
+          });
+
+          game.time.events.loop(starDelay, function(){
+               addStar();
           });
      },
      update: function(){
@@ -94,20 +105,31 @@ playGame.prototype = {
                ship.alpha = 1;
 
           game.physics.arcade.collide(ship, whaleGroup, function(){
-               score = parseInt(score * 0.5);
-               shipHit = 100;
-               //music.stop();
-               //whaleSound.stop();
-               //game.state.start("Level2");     
+               score = 0;//parseInt(score * 0.5);
+               scoreText.text = scoreString + score;
+               shipHit = 100;   
+               music.stop();
+               whaleSound.stop();
+               game.state.start("Level2"); 
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
-               score = parseInt(score * 0.5);
-               shipHit = 100;
-               //music.stop();
-               //whaleSound.stop();
-               //game.state.start("Level2");     
+               score = 0;//parseInt(score * 0.5);
+               scoreText.text = scoreString + score;
+               shipHit = 100; 
+               music.stop();
+               whaleSound.stop();
+               game.state.start("Level2"); 
           });
+
+          starGroup.forEach(function(star){
+               game.physics.arcade.collide(ship, star, function(){
+                    score += 25;
+                    starSound.play();
+                    scoreText.text = scoreString + score;
+                    star.destroy();    
+               });
+          })
      }
 }
 
@@ -153,6 +175,9 @@ function moveShipLeft(){
 
 Barrier = function (game) {
      var position = game.rnd.between(0, 6);
+
+     barrierPosition = position;
+
      var image;
 
      var rand = game.rnd.between(0,2);
@@ -175,6 +200,22 @@ Barrier = function (game) {
      this.anchor.set(0.5);
 };
 
+Star = function (game) {
+     var position = game.rnd.between(0, 4);
+
+     if(barrierPositionsX[position] == barrierPositionsX[barrierPosition]){
+          position = (position +1) % 5;
+     }
+
+     Phaser.Sprite.call(this, game, barrierPositionsX[position]-(40 * Game.scaleCoef), (-20 * Game.scaleCoef), 'star');
+     game.physics.enable(this, Phaser.Physics.ARCADE);
+
+     this.anchor.set(0.5);
+     
+     var shine = this.animations.add('shine');
+     this.animations.play('shine', 30, true);
+};
+
 Whale = function (game) {
      var position = 4 * game.rnd.between(0, 1);
 
@@ -191,6 +232,16 @@ Whale = function (game) {
      game.physics.enable(this, Phaser.Physics.ARCADE);
      this.anchor.set(0.5 * Game.scaleCoef);
      whaleSound.play();
+};
+
+Star.prototype = Object.create(Phaser.Sprite.prototype);
+Star.prototype.constructor = Star;
+
+Star.prototype.update = function() {
+     this.body.velocity.y = barrierSpeed * barrierSpeeds;
+     if(this.y > game.height){
+          this.destroy();
+     }
 };
 
 Barrier.prototype = Object.create(Phaser.Sprite.prototype);
@@ -240,6 +291,7 @@ function initScore(){
 function initVariables(){
      shipPosition = 0;
      barrierGroup = game.add.group();
+     starGroup = game.add.group();
      whaleGroup = game.add.group();
      shipPositionsX = [100 * Game.scaleCoef, (game.width/2) - (80 * Game.scaleCoef), game.width - (100 * Game.scaleCoef)];
      barrierPositionsX = [100 * Game.scaleCoef, (game.width/4), (game.width/2), (game.width*3/4), game.width - (100 * Game.scaleCoef), 100 * Game.scaleCoef, 100 * Game.scaleCoef];
@@ -274,6 +326,15 @@ function addBarrier(){
      barrierGroup.add(barrier);
 }
 
+function addStar(){
+     var star = new Star(game);
+               
+     star.scale.setTo(0.5 * Game.scaleCoef,0.5 * Game.scaleCoef);
+
+     game.add.existing(star);
+     starGroup.add(star);
+}
+
 function initSounds(){
 
      boatSound = game.add.audio('boatSound');
@@ -284,6 +345,9 @@ function initSounds(){
 
      whaleSound = game.add.audio('whaleSound');
      whaleSound.volume += 0.5;
+
+     starSound = game.add.audio('starSound');
+     starSound.volume += 0.5;
 
      boatMoveSound = game.add.audio('boatMoveSound');
      boatMoveSound.volume -= 0.9;
@@ -313,8 +377,15 @@ Timer.prototype.drawTimer = function(){
 
 Timer.prototype.sustract = function( time ){
      if( this.remaining - time <= 0 ){
+
+          while(ship.y > 0){
+               ship.y --;
+
+          }
+
           music.stop();
           whaleSound.stop();
+          starSound.stop();
           Game.score += score;
           Game.goToLevel("Splash3");
      }
