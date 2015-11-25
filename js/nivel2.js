@@ -292,7 +292,7 @@ function initSounds(){
 /***************************
 * TIMER
 ***************************/
-function Timer( gameContext )
+function Timer( gameContext ){
      this.gameContext = gameContext;
 
      this.remaining   = 30;
