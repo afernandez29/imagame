@@ -118,6 +118,7 @@
     
     GameContext.prototype.end = function()
     {
+        Game.score += this.score.score;
         this.game.state.restart( true, false );
         //Game.goToLevel( 'Splash4' );
     }
@@ -503,7 +504,7 @@
         return this.gameContext.game.add.text( 
             this.x, 
             this.y, 
-            this.score  + ' ', 
+            (this.score + Game.score)  + ' ', 
             { fontSize: '32px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
         );
     }
@@ -512,7 +513,7 @@
     {
         this.score += value;
 
-        this.scoreText.text = this.score  + ' ';
+        this.scoreText.text = (this.score + Game.score)  + ' ';
 
         return this.score;
     }

@@ -5,7 +5,7 @@
         this.width = Math.min( ( Math.round( window.screen.width * window.devicePixelRatio ) * 0.9 ), 1024 );
         this.height = Math.round( ( this.width / 16 ) * 9 );
         this.scaleCoef = this.width / 1024 / 2; // Retina
-        
+        this.score = 0;       
         this.game = new Phaser.Game( this.width, this.height, Phaser.AUTO, "" );
     }
     

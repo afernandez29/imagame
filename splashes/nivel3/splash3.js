@@ -16,6 +16,6 @@ function create()
 {
     game.stage.backgroundColor = '#182d3b';
     background = game.add.tileSprite(0, 0, 1024, 780, 'background');
-    button = game.add.button( game.world.centerX - 150 , game.world.centerY, 'button', Game.goToLevel( 'Level3' ), this );
+    button = game.add.button( game.world.centerX - 150 , game.world.centerY, 'button', Game.goToLevel.bind( this, 'Level3'), this );
 }
 

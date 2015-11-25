@@ -32,7 +32,7 @@ window.onload = function() {
      * GAME INSTANCE
      ***************************/
      Game.addState( 'Level2', playGame );
-     Game.goToLevel( 'Level2' );
+     //Game.goToLevel( 'Level2' );
 
      game = Game.game;
 }
@@ -69,6 +69,8 @@ playGame.prototype = {
 
           initSounds();
 
+          this.timer = new Timer( this );
+
           game.time.events.loop(barrierDelay, function(){
                addBarrier();
 
@@ -80,24 +82,24 @@ playGame.prototype = {
      },
      update: function(){
 
-          if(score > 200){
+          /*if(score > 200){
                music.stop();
                whaleSound.stop();
                score = 0;
-               Game.goToLevel("Level3");
-          }
+               Game.goToLevel("Splash3");
+          }*/
 
           starfield.tilePosition.y += 2;
 
           game.physics.arcade.collide(ship, whaleGroup, function(){
-               score = parseInt(score * 0.75);
+               score = parseInt(score * 0.5);
                music.stop();
                whaleSound.stop();
                game.state.start("Level2");     
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
-               score = parseInt(score * 0.75);
+               score = parseInt(score * 0.5);
                music.stop();
                whaleSound.stop();
                game.state.start("Level2");     
@@ -281,3 +283,44 @@ function initSounds(){
      boatMoveSound = game.add.audio('boatMoveSound');
      boatMoveSound.volume -= 0.5;
 }
+
+/***************************
+     * TIMER
+     ***************************/
+    function Timer( gameContext )
+    {
+        this.gameContext = gameContext;
+
+        this.remaining   = 30;
+        this.x           = this.gameContext.game.width / 2 - 40;
+        this.y           = 20;
+        this.scoreText   = this.drawTimer();
+        this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
+    }
+
+    Timer.prototype.drawTimer = function()
+    {
+        return this.gameContext.game.add.text( 
+            this.x, 
+            this.y, 
+            this.remaining + ' ', 
+            { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
+        );
+    }
+
+    Timer.prototype.sustract = function( time )
+    {
+        if( this.remaining - time < 0 )
+        {
+          music.stop();
+          whaleSound.stop();
+          Game.score += score;
+          Game.goToLevel("Splash3");
+        }
+        
+        this.remaining -= time;
+
+        this.scoreText.text = this.remaining + ' ';
+
+        return this.remaining;
+    }
