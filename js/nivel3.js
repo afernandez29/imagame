@@ -1,26 +1,26 @@
-( function( window, Game )
+( function( window, World )
 {
     "use strict";
     
     /***************************
      * GAME INSTANCE
      ***************************/
-    Game.addState( 'Level3', new GameContext() );
-    //Game.goToLevel( 'Level3' );
+    World.addState( 'Level3', new GameContext() );
+    World.goToLevel( 'Level3' );
     
     /***************************
      * GAME CONTEXT
      ***************************/
     function GameContext( game )
     {
-        this.game = Game.game;
+        this.game = World.game;
     }
     
     GameContext.prototype.preload = function()
     {
         this.game.load.image( "background", "/sprites/nivel3/03_fondo-01.png" );
         this.game.load.image( "road", "/sprites/nivel3/03_camino-loop.png" );
-        this.game.load.image( "car", "/sprites/nivel3/03_coche_s-sombra.png" );
+        this.game.load.spritesheet( "car", "/sprites/nivel3/03_camion-loop.png", 457.125, 201, 8 );
         this.game.load.image( "camels", "/sprites/nivel3/03_camellos.png" );
         this.game.load.image( "rocks", "/sprites/nivel3/03_rocas.png" );
         this.game.load.image( "palm", "/sprites/nivel3/03_palmera.png" );
@@ -51,10 +51,10 @@
         this.gasBar = new GasBar( this );
         
         // Score
-        this.score = new Score( this );
+        this.score = new Score( this.game );
         
         // Timer
-        this.timer = new Timer( this );
+        this.timer = new Timer( this.game, this.end );
 
         // Initialize car
         this.car = new Car( this );
@@ -93,7 +93,7 @@
                         t.destroy();
 
                         this.gasBar.add( 60 );
-                        this.score.addScore( 100 );
+                        this.score.add( 100 );
                     }.bind( this ) );
                 }
             }
@@ -118,7 +118,6 @@
     
     GameContext.prototype.end = function()
     {
-        Game.score += this.score.score;
         this.game.state.restart( true, false );
         //Game.goToLevel( 'Splash4' );
     }
@@ -159,7 +158,7 @@
     }
     
     /***************************
-     * SCORE
+     * CAR
      ***************************/
     function Car( gameContext )
     {
@@ -180,7 +179,9 @@
 
         // Car Sprite
         this.carSprite = this.gameContext.game.add.sprite( 90, this.carPositions[ 0 ], "car" );
-        
+        this.carSprite.animations.add( 'walk' );
+        this.carSprite.animations.play( 'walk', 10, true );
+
         // Enable physics
         this.gameContext.game.physics.enable( this.carSprite, Phaser.Physics.ARCADE );
 
@@ -314,7 +315,7 @@
         
         if( this.x < -100 )
         {
-            this.gameContext.score.addScore( 30 );
+            this.gameContext.score.add( 30 );
             this.destroy();
         }
     }
@@ -485,74 +486,4 @@
             this.color = 0x33FF00;
         }
     }
-    
-    /***************************
-     * SCORE
-     ***************************/
-    function Score( gameContext )
-    {
-        this.gameContext = gameContext;
-
-        this.score       = 0;
-        this.x           = this.gameContext.game.width - 100;
-        this.y           = 10;
-        this.scoreText   = this.drawScore();
-    }
-
-    Score.prototype.drawScore = function()
-    {
-        return this.gameContext.game.add.text( 
-            this.x, 
-            this.y, 
-            (this.score + Game.score)  + ' ', 
-            { fontSize: '32px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
-        );
-    }
-
-    Score.prototype.addScore = function( value )
-    {
-        this.score += value;
-
-        this.scoreText.text = (this.score + Game.score)  + ' ';
-
-        return this.score;
-    }
-    
-    /***************************
-     * TIMER
-     ***************************/
-    function Timer( gameContext )
-    {
-        this.gameContext = gameContext;
-
-        this.remaining   = 30;
-        this.x           = this.gameContext.game.width / 2 - 40;
-        this.y           = 20;
-        this.scoreText   = this.drawTimer();
-        this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
-    }
-
-    Timer.prototype.drawTimer = function()
-    {
-        return this.gameContext.game.add.text( 
-            this.x, 
-            this.y, 
-            this.remaining + ' ', 
-            { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
-        );
-    }
-
-    Timer.prototype.sustract = function( time )
-    {
-        if( this.remaining - time < 0 )
-        {
-            this.gameContext.end();
-        }
-        
-        this.remaining -= time;
-
-        this.scoreText.text = this.remaining + ' ';
-
-        return this.remaining;
-    }
-} )( top, Game );
+} )( top, World );
