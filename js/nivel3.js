@@ -6,7 +6,7 @@
      * GAME INSTANCE
      ***************************/
     Game.addState( 'Level3', new GameContext() );
-    Game.goToLevel( 'Level3' );
+    //Game.goToLevel( 'Level3' );
     
     /***************************
      * GAME CONTEXT
