@@ -7,6 +7,7 @@ var shipPosition;
 var shipPositionsX;
 var shipHorizontalSpeed = 400;
 var shipMoveDelay = 100;
+var shipHit = 0;
 
 var barrierGroup;
 var barrierPositionsX;
@@ -82,27 +83,30 @@ playGame.prototype = {
      },
      update: function(){
 
-          /*if(score > 200){
-               music.stop();
-               whaleSound.stop();
-               score = 0;
-               Game.goToLevel("Splash3");
-          }*/
-
           starfield.tilePosition.y += 2;
+
+          if(shipHit > 0){
+               ship.alpha = 1 - (0.8 * (shipHit%2));
+               shipHit--;
+               return;
+          }
+          else
+               ship.alpha = 1;
 
           game.physics.arcade.collide(ship, whaleGroup, function(){
                score = parseInt(score * 0.5);
-               music.stop();
-               whaleSound.stop();
-               game.state.start("Level2");     
+               shipHit = 100;
+               //music.stop();
+               //whaleSound.stop();
+               //game.state.start("Level2");     
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
                score = parseInt(score * 0.5);
-               music.stop();
-               whaleSound.stop();
-               game.state.start("Level2");     
+               shipHit = 100;
+               //music.stop();
+               //whaleSound.stop();
+               //game.state.start("Level2");     
           });
      }
 }
@@ -279,48 +283,45 @@ function initSounds(){
      music.play();
 
      whaleSound = game.add.audio('whaleSound');
+     whaleSound.volume += 0.5;
 
      boatMoveSound = game.add.audio('boatMoveSound');
-     boatMoveSound.volume -= 0.5;
+     boatMoveSound.volume -= 0.9;
 }
 
 /***************************
-     * TIMER
-     ***************************/
-    function Timer( gameContext )
-    {
-        this.gameContext = gameContext;
+* TIMER
+***************************/
+function Timer( gameContext ){
+     this.gameContext = gameContext;
 
-        this.remaining   = 30;
-        this.x           = this.gameContext.game.width / 2 - 40;
-        this.y           = 20;
-        this.scoreText   = this.drawTimer();
-        this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
-    }
+     this.remaining   = 30;
+     this.x           = this.gameContext.game.width / 2 - 40;
+     this.y           = 20;
+     this.scoreText   = this.drawTimer();
+     this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
+}
 
-    Timer.prototype.drawTimer = function()
-    {
-        return this.gameContext.game.add.text( 
-            this.x, 
-            this.y, 
-            this.remaining + ' ', 
-            { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
-        );
-    }
+Timer.prototype.drawTimer = function(){
+     return this.gameContext.game.add.text( 
+          this.x, 
+          this.y, 
+          this.remaining + ' ', 
+          { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
+     );
+}
 
-    Timer.prototype.sustract = function( time )
-    {
-        if( this.remaining - time < 0 )
-        {
+Timer.prototype.sustract = function( time ){
+     if( this.remaining - time <= 0 ){
           music.stop();
           whaleSound.stop();
           Game.score += score;
           Game.goToLevel("Splash3");
-        }
+     }
         
-        this.remaining -= time;
+     this.remaining -= time;
 
-        this.scoreText.text = this.remaining + ' ';
+     this.scoreText.text = this.remaining + ' ';
 
-        return this.remaining;
-    }
+     return this.remaining;
+}
