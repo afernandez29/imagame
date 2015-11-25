@@ -43,6 +43,9 @@
         
         // Car / Obstacle / Target Groups
         this.entitiesGroup = this.game.add.group();
+
+        // Clouds group
+        this.cloudsGroup = this.game.add.group();
         
         // Game Bar
         this.gasBar = new GasBar( this );
@@ -58,13 +61,7 @@
         this.entitiesGroup.add( this.car.carSprite );
         
         // Game Loop
-        this.gameLoop = this.game.time.events.loop( this.entitiesDelay, this.gameLoop.bind( this ) );
-        
-        // Cloud Loop
-        this.game.time.events.loop( 6000, function()
-        {
-            new Cloud( this );
-        }.bind( this ) );
+        this.loop = this.game.time.events.loop( this.entitiesDelay, this.gameLoop.bind( this ) );
     }
     
     GameContext.prototype.update = function()
@@ -101,6 +98,12 @@
                 }
             }
         }, this );
+
+        // Add Clouds
+        if( this.game.rnd.between( 0, 100 ) > 99 )
+        {
+            this.cloudsGroup.add( new Cloud( this ) );
+        }
     }
     
     GameContext.prototype.restart = function()
@@ -110,33 +113,13 @@
     
     GameContext.prototype.stop = function()
     {
-        this.game.time.events.remove( this.gameLoop );
-        this.game.time.events.remove( this.gasBar.loop );
-        this.game.time.events.remove( this.timer.loop );
-        
-        this.car.stop();
-        
-        this.roadSpeed = 0;
-        
-        // Car against obstacle
-        this.entitiesGroup.forEach( function( entity )
-        {
-            // TARGET
-            if( entity.targetSpeed )
-            {
-                entity.targetSpeed = 0;
-            }
-            // OBSTACLE
-            else if( entity.obstacleSpeed )
-            {
-                entity.obstacleSpeed = 0;
-            }
-        } );
+        this.game.lockRender = true;
     }
     
     GameContext.prototype.end = function()
     {
         this.game.state.restart( true, false );
+        //Game.goToLevel( 'Splash4' );
     }
     
     GameContext.prototype.loadBackground = function()
@@ -364,8 +347,8 @@
         );
         
         this.gameContext.game.physics.enable( this, Phaser.Physics.ARCADE );
-        this.scale.x = 0.50;
-        this.scale.y = 0.50;
+        this.scale.x = 0.5;
+        this.scale.y = 0.5;
         this.anchor.set( 0.5 );
     }
 
@@ -383,6 +366,44 @@
         }
     }
     
+    /***************************
+     * CLOUD
+     ***************************/
+    function Cloud( gameContext )
+    {
+        this.gameContext = gameContext;
+        
+        this.speed = this.gameContext.game.rnd.between( 250, 450 );
+
+        Phaser.Sprite.call( 
+            this, 
+            this.gameContext.game,
+            this.gameContext.game.width + 100,
+            this.gameContext.game.rnd.between( 50, 150 ),
+            "cloud"
+        );
+        this.gameContext.game.physics.enable( this, Phaser.Physics.BODY );
+        
+        var scale = this.gameContext.game.rnd.between( 6, 10 ) / 10;
+        this.scale.x = scale;
+        this.scale.y = scale;
+        this.anchor.set( 0.5 );
+    }
+    
+    Cloud.prototype = Object.create( Phaser.Sprite.prototype );
+    
+    Cloud.prototype.constructor = Cloud;
+    
+    Cloud.prototype.update = function()
+    {
+        this.body.velocity.x = -1 * this.speed;
+        
+        if( this.x < -100 )
+        {
+            this.destroy();
+        }
+    }
+
     /***************************
      * GAS BAR 
      ***************************/
@@ -482,8 +503,8 @@
         return this.gameContext.game.add.text( 
             this.x, 
             this.y, 
-            this.score, 
-            { fontSize: '32px', fill: '#FFF' } 
+            this.score  + ' ', 
+            { fontSize: '32px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
         );
     }
 
@@ -491,7 +512,7 @@
     {
         this.score += value;
 
-        this.scoreText.text = this.score;
+        this.scoreText.text = this.score  + ' ';
 
         return this.score;
     }
@@ -504,7 +525,7 @@
         this.gameContext = gameContext;
 
         this.remaining   = 30;
-        this.x           = this.gameContext.game.width / 2 - 60;
+        this.x           = this.gameContext.game.width / 2 - 40;
         this.y           = 20;
         this.scoreText   = this.drawTimer();
         this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
@@ -515,8 +536,8 @@
         return this.gameContext.game.add.text( 
             this.x, 
             this.y, 
-            this.remaining, 
-            { fontSize: '60px', fill: '#FFF' } 
+            this.remaining + ' ', 
+            { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
         );
     }
 
@@ -529,52 +550,8 @@
         
         this.remaining -= time;
 
-        this.scoreText.text = this.remaining;
+        this.scoreText.text = this.remaining + ' ';
 
         return this.remaining;
-    }
-    
-    /***************************
-     * CLOUD
-     ***************************/
-    function Cloud( gameContext )
-    {
-        this.gameContext = gameContext;
-        
-        this.x = this.gameContext.game.width + 100;
-        this.y = this.gameContext.game.rnd.between( 100, 300 );
-        
-        Phaser.Sprite.call( 
-            this, 
-            this.gameContext.game,
-            this.x,
-            this.y,
-            "cloud"
-        );
-        this.gameContext.game.physics.enable( this, Phaser.Physics.ARCADE );
-        
-        var scale = 1 / this.gameContext.game.rnd.between( 25, 50 );
-        this.scaleX = scale;
-        this.scaleY = scale;
-        this.anchor.set( 0.5 );
-        
-        this.speed = this.gameContext.game.rnd.between( 2, 6 );
-        this.loop = this.gameContext.game.time.events.loop( 50, this.cloudLoop.bind( this ) );
-    }
-    
-    Cloud.prototype = Object.create( Phaser.Sprite.prototype );
-    
-    Cloud.prototype.constructor = Cloud;
-    
-    Cloud.prototype.cloudLoop = function()
-    {
-        this.x -= this.speed;
-        
-        if( this.x < -100 )
-        {
-            this.gameContext.game.time.events.remove( this.cloudLoop );
-            
-            this.destroy();
-        }
     }
 } )( top, Game );
