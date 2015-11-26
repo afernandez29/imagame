@@ -112,15 +112,12 @@
         {
             this.endCallback();
         }
-        
-        this.remaining -= time;
+        else
+        {
+            this.remaining -= time;
 
-        this.timerText.text = this.remaining + ' ';
-    }
-
-    Timer.prototype.stop = function( time )
-    {
-        this.game.time.events.remove( this.loop );
+            this.timerText.text = this.remaining + ' ';
+        }
     }
 
     window.Timer = Timer;

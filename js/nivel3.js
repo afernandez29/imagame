@@ -142,7 +142,7 @@
     GameContext.prototype.end = function()
     {
         this.gameIsOver = true;
-        this.timer.stop();
+        
         this.movementTween = this.game.add.tween( this.car.carSprite ).to(
             { 
                 x: this.game.width * 2.5,
@@ -155,7 +155,9 @@
         this.movementTween.onComplete.add( function()
         {
             this.game.lockRender = true;
+            
             this.themeSong.stop();
+            
             //World.goToLevel( 'Splash4' );
         }.bind( this ) );
     }
@@ -177,6 +179,7 @@
         );
         this.roadTile.scale.x = 0.5;
         this.roadTile.scale.y = 0.5;
+        this.roadTile.tilePosition.y -= 1;
     }
     
     GameContext.prototype.gameLoop = function()
@@ -239,6 +242,22 @@
         
         this.keyUp.onDown.add( this.move.bind( this, -1 ) );
         this.keyDown.onDown.add( this.move.bind( this, 1 ) );
+        
+        // Tap Event
+        this.gameContext.game.input.onTap.add( function( event )
+        {
+            // RIGHT ( DOWN )
+            if( Math.floor( event.x / ( this.gameContext.game.width / 2 ) ) === 0 )
+            {
+                this.move( -1 );
+            }
+
+            // LEFT ( UP )
+            if( Math.floor( event.x / ( this.gameContext.game.width / 2 ) ) === 1 )
+            {
+                this.move( 1 );
+            }
+        }.bind( this ) );
     }
 
     Car.prototype.move = function( direction )
