@@ -29,6 +29,8 @@ var nivel1 = {
 			this.game.load.image('medicine', 'sprites/nivel1/medicina_.png');
 			this.game.load.image('book', 'sprites/nivel1/libro_.png');
 			this.game.load.image('stone', 'sprites/nivel1/stone_.png');
+			this.game.load.audio('collect', 'music/nivel1/collect.wav');
+			this.game.load.audio('errorCollect', 'music/nivel1/game-over.wav');
 			
 		},
 
