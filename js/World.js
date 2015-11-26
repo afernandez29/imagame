@@ -118,5 +118,10 @@
         this.timerText.text = this.remaining + ' ';
     }
 
+    Timer.prototype.stop = function( time )
+    {
+        this.game.time.events.remove( this.loop );
+    }
+
     window.Timer = Timer;
 } )( top, Phaser );
