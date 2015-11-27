@@ -1,31 +1,35 @@
-( function( window, Game )
+( function( window, World )
 {
     "use strict";
     
     /***************************
      * GAME INSTANCE
      ***************************/
-    Game.addState( 'Level3', new GameContext() );
-    //Game.goToLevel( 'Level3' );
+    World.addState( 'Level3', new GameContext() );
+    World.goToLevel( 'Level3' );
     
     /***************************
      * GAME CONTEXT
      ***************************/
     function GameContext( game )
     {
-        this.game = Game.game;
+        this.game = World.game;
     }
     
     GameContext.prototype.preload = function()
     {
         this.game.load.image( "background", "/sprites/nivel3/03_fondo-01.png" );
         this.game.load.image( "road", "/sprites/nivel3/03_camino-loop.png" );
-        this.game.load.image( "car", "/sprites/nivel3/03_coche_s-sombra.png" );
+        this.game.load.image( "car", "/sprites/nivel3/03_coche.png" );
         this.game.load.image( "camels", "/sprites/nivel3/03_camellos.png" );
         this.game.load.image( "rocks", "/sprites/nivel3/03_rocas.png" );
         this.game.load.image( "palm", "/sprites/nivel3/03_palmera.png" );
         this.game.load.image( "gas", "/sprites/nivel3/03_gasolina.png" );
         this.game.load.image( "cloud", "/sprites/nivel3/03_nube.png" );
+
+        this.game.load.audio( 'themeSong', 
+            [ '/music/nivel3/Level3_Song.mp3', '/music/nivel3/Level3_Song.ogg' ] 
+        );
     }
 
     GameContext.prototype.create = function()
@@ -37,7 +41,12 @@
         this.maxNumberLanes = 3;
         this.roadSpeed = 11.6;
         this.entitiesDelay = 1400;
+        this.gameIsOver = false;
         
+        // Init music
+        this.themeSong = this.game.add.audio( 'themeSong' );
+        this.themeSong.play();
+
         // Load Background
         this.loadBackground();
         
@@ -51,10 +60,10 @@
         this.gasBar = new GasBar( this );
         
         // Score
-        this.score = new Score( this );
+        this.score = new Score( this.game );
         
         // Timer
-        this.timer = new Timer( this );
+        this.timer = new Timer( this.game, this.end.bind( this ) );
 
         // Initialize car
         this.car = new Car( this );
@@ -62,6 +71,7 @@
         
         // Game Loop
         this.loop = this.game.time.events.loop( this.entitiesDelay, this.gameLoop.bind( this ) );
+        this.loopIterations = 0;
     }
     
     GameContext.prototype.update = function()
@@ -69,40 +79,58 @@
         // Background movement
         this.roadTile.tilePosition.x -= this.roadSpeed;
 
-        // Car against obstacle
-        this.entitiesGroup.forEach( function( entity )
+        if( !this.gameIsOver )
         {
-            // OBSTACLE
-            if( entity.obstacleSpeed )
+            // Car against obstacle
+            this.entitiesGroup.forEach( function( entity )
             {
-                if( this.car.currentLane == entity.currentLane )
+                // OBSTACLE
+                if( entity.obstacleSpeed )
                 {
-                    this.game.physics.arcade.collide( this.car.carSprite, entity, function()
+                    if( this.car.currentLane == entity.currentLane )
                     {
-                        this.stop();
-                    }.bind( this ) );   
+                        this.game.physics.arcade.overlap( this.car.carSprite, entity, function()
+                        {
+                            if( this.car.damage == 0 )
+                            {
+                                this.car.damage = 100;
+                                this.gasBar.sustract( 30 );
+                            }
+                        }.bind( this ) );   
+                    }
                 }
-            }
-            // TARGET
-            else if( entity.targetSpeed )
+                // TARGET
+                else if( entity.targetSpeed )
+                {
+                    if( this.car.currentLane == entity.currentLane )
+                    {
+                        this.game.physics.arcade.collide( this.car.carSprite, entity, function( c, t )
+                        {
+                            t.destroy();
+
+                            this.gasBar.add( 120 );
+                        }.bind( this ) );
+                    }
+                }
+            }, this );
+
+            // Add Clouds
+            if( this.game.rnd.between( 0, 300 ) > 298 )
             {
-                if( this.car.currentLane == entity.currentLane )
-                {
-                    this.game.physics.arcade.collide( this.car.carSprite, entity, function( c, t )
-                    {
-                        t.destroy();
-
-                        this.gasBar.add( 60 );
-                        this.score.addScore( 100 );
-                    }.bind( this ) );
-                }
+                this.cloudsGroup.add( new Cloud( this ) );
             }
-        }, this );
-
-        // Add Clouds
-        if( this.game.rnd.between( 0, 100 ) > 99 )
+        }
+        
+        // Car blink
+        if( this.car.damage > 0 )
         {
-            this.cloudsGroup.add( new Cloud( this ) );
+           this.car.carSprite.alpha = 1 - ( 0.8 * ( this.car.damage % 2 ) );
+           this.car.damage--;
+           return;
+        }
+        else
+        {
+            this.car.carSprite.alpha = 1;
         }
     }
     
@@ -111,16 +139,27 @@
         this.game.state.restart( true, false );
     }
     
-    GameContext.prototype.stop = function()
-    {
-        this.game.lockRender = true;
-    }
-    
     GameContext.prototype.end = function()
     {
-        Game.score += this.score.score;
-        this.game.state.restart( true, false );
-        //Game.goToLevel( 'Splash4' );
+        this.gameIsOver = true;
+        
+        this.movementTween = this.game.add.tween( this.car.carSprite ).to(
+            { 
+                x: this.game.width * 2.5,
+            }, 
+            this.car.carOutOfScreen, 
+            Phaser.Easing.Linear.None, 
+            true 
+        );
+
+        this.movementTween.onComplete.add( function()
+        {
+            this.game.lockRender = true;
+            
+            this.themeSong.stop();
+            
+            //World.goToLevel( 'Splash4' );
+        }.bind( this ) );
     }
     
     GameContext.prototype.loadBackground = function()
@@ -140,11 +179,12 @@
         );
         this.roadTile.scale.x = 0.5;
         this.roadTile.scale.y = 0.5;
+        this.roadTile.tilePosition.y -= 1;
     }
     
     GameContext.prototype.gameLoop = function()
     {
-        if( this.game.rnd.between( 0, 10 ) <= 4 )
+        if( this.loopIterations % 3 != 0 )
         {
             var obstacle = new Obstacle( this );
             this.game.add.existing( obstacle );
@@ -156,16 +196,20 @@
             this.game.add.existing( target );
             this.entitiesGroup.add( target );
         }
+
+        this.loopIterations++;
     }
     
     /***************************
-     * SCORE
+     * CAR
      ***************************/
     function Car( gameContext )
     {
         this.gameContext = gameContext;
         
+        this.damage = 0;
         this.carTurnSpeed = 250;
+        this.carOutOfScreen = 1000;
         this.currentLane = 0;
         this.carPositions = [];        
         
@@ -180,9 +224,11 @@
 
         // Car Sprite
         this.carSprite = this.gameContext.game.add.sprite( 90, this.carPositions[ 0 ], "car" );
-        
+        this.carSprite.animations.add( 'walk' );
+        this.carSprite.animations.play( 'walk', 10, true );
+
         // Enable physics
-        this.gameContext.game.physics.enable( this.carSprite, Phaser.Physics.ARCADE );
+        this.gameContext.game.physics.enable( this.carSprite, Phaser.Physics.BODY );
 
         this.carSprite.body.allowRotation = false;
         this.carSprite.body.moves = false;
@@ -196,6 +242,22 @@
         
         this.keyUp.onDown.add( this.move.bind( this, -1 ) );
         this.keyDown.onDown.add( this.move.bind( this, 1 ) );
+        
+        // Tap Event
+        this.gameContext.game.input.onTap.add( function( event )
+        {
+            // RIGHT ( DOWN )
+            if( Math.floor( event.x / ( this.gameContext.game.width / 2 ) ) === 0 )
+            {
+                this.move( -1 );
+            }
+
+            // LEFT ( UP )
+            if( Math.floor( event.x / ( this.gameContext.game.width / 2 ) ) === 1 )
+            {
+                this.move( 1 );
+            }
+        }.bind( this ) );
     }
 
     Car.prototype.move = function( direction )
@@ -314,7 +376,6 @@
         
         if( this.x < -100 )
         {
-            this.gameContext.score.addScore( 30 );
             this.destroy();
         }
     }
@@ -374,7 +435,7 @@
     {
         this.gameContext = gameContext;
         
-        this.speed = this.gameContext.game.rnd.between( 250, 450 );
+        this.speed = this.gameContext.game.rnd.between( 100, 200 );
 
         Phaser.Sprite.call( 
             this, 
@@ -436,11 +497,13 @@
     
     GasBar.prototype.sustract = function( quantity )
     {
-        this.currentGas -= quantity;
-
-        if( this.currentGas <= 0 )
+        if( this.currentGas - quantity <= 0 )
         {
-            this.gameContext.stop();
+            this.gameContext.end();
+        }
+        else
+        {
+            this.currentGas -= quantity;
         }
     }
 
@@ -485,74 +548,4 @@
             this.color = 0x33FF00;
         }
     }
-    
-    /***************************
-     * SCORE
-     ***************************/
-    function Score( gameContext )
-    {
-        this.gameContext = gameContext;
-
-        this.score       = 0;
-        this.x           = this.gameContext.game.width - 100;
-        this.y           = 10;
-        this.scoreText   = this.drawScore();
-    }
-
-    Score.prototype.drawScore = function()
-    {
-        return this.gameContext.game.add.text( 
-            this.x, 
-            this.y, 
-            (this.score + Game.score)  + ' ', 
-            { fontSize: '32px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
-        );
-    }
-
-    Score.prototype.addScore = function( value )
-    {
-        this.score += value;
-
-        this.scoreText.text = (this.score + Game.score)  + ' ';
-
-        return this.score;
-    }
-    
-    /***************************
-     * TIMER
-     ***************************/
-    function Timer( gameContext )
-    {
-        this.gameContext = gameContext;
-
-        this.remaining   = 30;
-        this.x           = this.gameContext.game.width / 2 - 40;
-        this.y           = 20;
-        this.scoreText   = this.drawTimer();
-        this.loop        = this.gameContext.game.time.events.loop( 1000, this.sustract.bind( this, 1 ) );
-    }
-
-    Timer.prototype.drawTimer = function()
-    {
-        return this.gameContext.game.add.text( 
-            this.x, 
-            this.y, 
-            this.remaining + ' ', 
-            { fontSize: '52px', fill: '#FFF', stroke: '#000', strokeThickness: '5' } 
-        );
-    }
-
-    Timer.prototype.sustract = function( time )
-    {
-        if( this.remaining - time < 0 )
-        {
-            this.gameContext.end();
-        }
-        
-        this.remaining -= time;
-
-        this.scoreText.text = this.remaining + ' ';
-
-        return this.remaining;
-    }
-} )( top, Game );
+} )( top, World );
