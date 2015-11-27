@@ -1,7 +1,7 @@
-Game.addState( 'Splash2', { preload: preload, create: create } );
-Game.goToLevel( 'Splash2' );
+World.addState( 'Splash2', { preload: preload, create: create } );
+//World.goToLevel( 'Splash2' );
 
-var game = Game.game;
+var game = World.game;
 
 function preload()
 {
@@ -16,5 +16,6 @@ function create()
 {
     game.stage.backgroundColor = '#182d3b';
     background = game.add.tileSprite(0, 0, 1024, 780, 'background');
-    button = game.add.button( game.world.centerX - 150 , game.world.centerY, 'button', Game.goToLevel.bind( this, 'Level2'), this );
+    game.add.text(10, 10, "Ha conseguido " + World.totalScore + " Kg de ayuda. Pasa a siguiente nivel.", { font: '16px Arial', fill: '#fff' });
+    button = game.add.button( game.world.centerX - 150 , game.world.centerY, 'button', World.goToLevel.bind( this, 'Level2'), this );
 }
