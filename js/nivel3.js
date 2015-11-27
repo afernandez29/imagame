@@ -6,7 +6,7 @@
      * GAME INSTANCE
      ***************************/
     World.addState( 'Level3', new GameContext() );
-    World.goToLevel( 'Level3' );
+    //World.goToLevel( 'Level3' );
     
     /***************************
      * GAME CONTEXT
@@ -154,7 +154,7 @@
 
         this.movementTween.onComplete.add( function()
         {
-            this.game.lockRender = true;
+            //this.game.lockRender = true;
             
             this.themeSong.stop();
             
