@@ -286,7 +286,7 @@ var nivel1 = {
 		    medicines.removeAll();
 		    clearInterval(itemsInterval);
 			World.totalScore = this.score.total;
-			World.goToLevel('splash2');
+			World.goToLevel('Splash2');
 		},
 
 		render: function () {
@@ -309,10 +309,10 @@ var splash2 = {
 		},
 		
 		nextGame: function(){
-			World.goToLevel('nivel1');
+			World.goToLevel('splash2');
 		}
 }
 //Add and start the 'main' state to start the game
 World.addState('nivel1', nivel1);
-World.addState('splash2', splash2);
-World.goToLevel('nivel1');
+//World.addState('splash2', splash2);
+//World.goToLevel('nivel1');
