@@ -280,6 +280,19 @@ function initKeys(){
 
      key2 = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
      key2.onDown.add(moveShipRight);
+
+     game.input.onTap.add( function( event )
+     {
+       if( Math.floor( event.x / ( game.width / 2 ) ) === 0 )
+       {
+           moveShipLeft();
+       }
+
+       if( Math.floor( event.x / ( game.width / 2 ) ) === 1 )
+       {
+           moveShipRight();
+       }
+   });
 }
 
 function initBackground(){
