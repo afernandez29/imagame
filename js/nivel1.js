@@ -114,6 +114,7 @@ var nivel1 = {
 			
 			// Duracion de juego 30 s
 			this.timer = new Timer( this.game, this.gameOver.bind(this) );
+
 			//setTimeout(this.gameOver, 31000); 
 
 			if (facing == 'left')
@@ -127,9 +128,8 @@ var nivel1 = {
 
 		update: function () {
 			if (this.timer.remaining < 1){
-                        	var tween = game.add.tween(player).to( { y: this.game.world.height / 2, x: -2000 }, 1000, "Linear", true);
+                        	var tween = game.add.tween(player).to( { x: this.game.world.width * 2 }, 500, Phaser.Easing.Linear.None, true);
 			}	
-//			player.body.velocity.x = 0;
 			
 			if (cursors.left.isDown || dir == 'left')
 			{
