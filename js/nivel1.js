@@ -1,11 +1,6 @@
-//Dimensiones
-var sWidth = Math.min( (Math.round(screen.width) * 0.9), 1024 );
-var sHeight = Math.round( (sWidth / 16) * 9 ); 
-var scaleCoef = sWidth/1024 / 2; // tamanio x2 para retina
-
 //Initialize Phaser, and create a sWidth px * sHeight px game
 //var game = new Phaser.Game(sWidth, sHeight, Phaser.AUTO, 'gameDiv');
-var game = this.game = World.gamme;
+var game = World.game;
 
 var score = 0;
 var player;
@@ -15,13 +10,15 @@ var eats;
 var medicines;
 var books;
 var stones;
+var dir;
+
 KG = 150;
 
 //Create our 'main' state that will contain the game
 var nivel1 = {
 		
 		preload: function () {
-			facing = 'left';
+			facing = 'right';
 
 			this.game.load.spritesheet('player', 'sprites/nivel1/player.png', 354, 357);
 			this.game.load.image('background', 'splashes/nivel1/background.png');
@@ -39,18 +36,15 @@ var nivel1 = {
 			this.game.physics.startSystem(Phaser.Physics.ARCADE);
 
 			this.game.stage.backgroundColor = '#71c5cf';
-
 			bg = this.game.add.image(0, 0, 'background');
-			bg.scale.setTo(scaleCoef, scaleCoef);
+			bg.scale.setTo(World.scaleCoef, World.scaleCoef);
 
 			this.game.physics.arcade.gravity.y = 250;
 
 			player = this.game.add.sprite(32, 32, 'player');
-//			player.scale.setTo(scaleCoef, scaleCoef);
 			this.game.physics.enable(player, Phaser.Physics.ARCADE);
-//			player.hitArea= new Phaser.Rectangle(0, 40, 64, 56);
 			player.body.collideWorldBounds = true;
-			player.scale.setTo(scaleCoef, scaleCoef);
+			player.scale.setTo(World.scaleCoef, World.scaleCoef);
 			
 			player.animations.add('left', [0, 1, 2], 10, true);
 			player.animations.add('turn', [3], 20, true);
@@ -65,8 +59,8 @@ var nivel1 = {
 		    eats.setAll('anchor.y', 1);
 		    eats.setAll('outOfBoundsKill', true);
 		    eats.setAll('checkWorldBounds', true);
-		    eats.setAll('scale.x', scaleCoef);
-		    eats.setAll('scale.y', scaleCoef);
+		    eats.setAll('scale.x', World.scaleCoef);
+		    eats.setAll('scale.y', World.scaleCoef);
 		    
 		    // items de medicina
 		    medicines = this.game.add.group();
@@ -77,8 +71,8 @@ var nivel1 = {
 		    medicines.setAll('anchor.y', 1);
 		    medicines.setAll('outOfBoundsKill', true);
 		    medicines.setAll('checkWorldBounds', true);
-		    medicines.setAll('scale.x', scaleCoef);
-		    medicines.setAll('scale.y', scaleCoef);
+		    medicines.setAll('scale.x', World.scaleCoef);
+		    medicines.setAll('scale.y', World.scaleCoef);
 		    
 		    // items de libros
 		    books = this.game.add.group();
@@ -89,8 +83,8 @@ var nivel1 = {
 		    books.setAll('anchor.y', 1);
 		    books.setAll('outOfBoundsKill', true);
 		    books.setAll('checkWorldBounds', true);
-		    books.setAll('scale.x', scaleCoef);
-		    books.setAll('scale.y', scaleCoef);
+		    books.setAll('scale.x', World.scaleCoef);
+		    books.setAll('scale.y', World.scaleCoef);
 		    
 		    // items de libros
 		    stones = this.game.add.group();
@@ -101,13 +95,19 @@ var nivel1 = {
 		    stones.setAll('anchor.y', 1);
 		    stones.setAll('outOfBoundsKill', true);
 		    stones.setAll('checkWorldBounds', true);
-		    stones.setAll('scale.x', scaleCoef);
-		    stones.setAll('scale.y', scaleCoef);
+		    stones.setAll('scale.x', World.scaleCoef);
+		    stones.setAll('scale.y', World.scaleCoef);
 		    
 			this.score = new Score( this.game );
 
 			cursors = this.game.input.keyboard.createCursorKeys();
-			this.game.input.mouse.capture = true;
+			this.game.input.onTap.add(this.moveElement, this);
+			dir = "";
+
+			// Audio
+			audioCollect = this.game.add.audio('collect');
+		    audioError = this.game.add.audio('errorCollect');
+			audioError.volume += 10;
 			
 			// lanzar items
 			itemsInterval = setInterval(this.throwItems.bind(this), 1000);
@@ -116,50 +116,40 @@ var nivel1 = {
 			this.timer = new Timer( this.game, this.gameOver.bind(this) );
 			//setTimeout(this.gameOver, 31000); 
 
+			if (facing == 'left')
+			{
+				player.frame = 0;
+			}else
+			{
+				player.frame = 5;
+			}
 		},
 
 		update: function () {
+			if (this.timer.remaining < 1){
+                        	var tween = game.add.tween(player).to( { y: this.game.world.height / 2, x: -2000 }, 1000, "Linear", true);
+			}	
+//			player.body.velocity.x = 0;
 			
-			player.body.velocity.x = 0;
-			
-			if (cursors.left.isDown)
+			if (cursors.left.isDown || dir == 'left')
 			{
 				player.body.velocity.x = -550;
 
-				if (facing != 'left')
-				{
 					player.animations.play('left');
 					facing = 'left';
-				}
+				
+				dir = "";
 			}
-			else if (cursors.right.isDown)
+			else if (cursors.right.isDown || dir == 'right')
 			{
 				player.body.velocity.x = 550;
 
-				if (facing != 'right')
-				{
 					player.animations.play('right');
 					facing = 'right';
-				}
+				dir = "";
 			}
-			else
-			{
-				if (facing != 'idle')
-				{
-					player.animations.stop();
 
-					if (facing == 'left')
-					{
-						player.frame = 0;
-					}
-					else
-					{
-						player.frame = 5;
-					}
-
-					facing = 'idle';
-				}
-			}
+			
 
 			// Conseguir punto
 	        this.game.physics.arcade.collide(player, eats, this.getEatPoint, null, this);
@@ -167,7 +157,7 @@ var nivel1 = {
 	        this.game.physics.arcade.collide(player, books, this.getBookPoint, null, this);
 	        this.game.physics.arcade.collide(player, stones, this.getStone, null, this);
 			
-		},
+		},		
 		
 		selectItem: function (){
 			var rnd = Math.round(Math.random() * 3);
@@ -218,7 +208,7 @@ var nivel1 = {
 
 		    if (medicine)
 		    {
-		        var rnd = this.game.rnd.integerInRange(0, this.game.world.width - 100) + 100;
+		        var rnd = this.game.rnd.integerInRange(0, this.game.world.width - 300) + 100;
 		        var vel = this.game.rnd.integerInRange(150, 400);
 		        medicine.reset(rnd, 0);
 		        medicine.body.velocity.y = vel;
@@ -257,16 +247,19 @@ var nivel1 = {
 		},
 		
 		getEatPoint: function(){
+			audioCollect.play();
 			var eat = eats.getFirstAlive(false);
 			this.getPoint(eat, KG);
 		},
 		
 		getMedicinePoint: function(){
+			audioCollect.play();
 			var medicine = medicines.getFirstAlive(false);
 			this.getPoint(medicine, KG);
 		},
 		
 		getBookPoint: function(){
+			audioCollect.play();
 			var book = books.getFirstAlive(false);
 			this.getPoint(book, KG);
 		},
@@ -277,15 +270,17 @@ var nivel1 = {
 		},
 		
 		getStone: function(){
+			var tween = game.add.tween(player).to( { y: player.body.y + 25 }, 500, Phaser.Easing.Bounce.Out, true);
+			audioError.play();
 			var stone = stones.getFirstAlive(false);
 			this.getPoint(stone, 0);
 		},
 		
-		updateTime: function(){
-			 timeScore --;
-			 timeScoreText.text = timeScore;
+		moveElement: function(p){
+			if (p.x <= (game.world.width / 2)) dir = "left";
+			else dir = "right";
 		},
-		
+				
 		gameOver: function(){
 		    eats.removeAll();
 		    medicines.removeAll();
@@ -314,7 +309,7 @@ var splash2 = {
 		},
 		
 		nextGame: function(){
-			this.game.state.start('nivel1', true, false);
+			World.goToLevel('nivel1');
 		}
 }
 //Add and start the 'main' state to start the game
