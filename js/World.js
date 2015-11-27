@@ -112,10 +112,12 @@
         {
             this.endCallback();
         }
-        
-        this.remaining -= time;
+        else
+        {
+            this.remaining -= time;
 
-        this.timerText.text = this.remaining + ' ';
+            this.timerText.text = this.remaining + ' ';
+        }
     }
 
     window.Timer = Timer;
