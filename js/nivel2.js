@@ -105,6 +105,10 @@ playGame.prototype = {
           else
                ship.alpha = 1;
 
+          if(gameIsOver){
+               return;
+          }
+
           game.physics.arcade.collide(ship, whaleGroup, function(){
                if(!gameIsOver){
                     //score = 0;//parseInt(score * 0.5);
@@ -113,7 +117,7 @@ playGame.prototype = {
                     music.stop();
                     whaleSound.stop();
                     game.state.start("Level2");
-               } 
+               }
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
