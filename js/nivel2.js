@@ -280,6 +280,19 @@ function initKeys(){
 
      key2 = game.input.keyboard.addKey(Phaser.Keyboard.RIGHT);
      key2.onDown.add(moveShipRight);
+
+     game.input.onTap.add( function( event )
+     {
+       if( Math.floor( event.x / ( game.width / 2 ) ) === 0 )
+       {
+           moveShipLeft();
+       }
+
+       if( Math.floor( event.x / ( game.width / 2 ) ) === 1 )
+       {
+           moveShipRight();
+       }
+   });
 }
 
 function initBackground(){
@@ -289,8 +302,9 @@ function initBackground(){
 }
 
 function initScore(){
-     scoreString = 'Score : ';
-     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+     score = new Score( game );
+     /*scoreString = 'Score : ';
+     scoreText = game.add.text(10, 10, scoreString + World.totalScore, { font: '34px Arial', fill: '#fff' });*/
 }
 
 function initVariables(){
