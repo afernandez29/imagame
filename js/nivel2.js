@@ -110,25 +110,21 @@ playGame.prototype = {
           }
 
           game.physics.arcade.collide(ship, whaleGroup, function(){
-               if(!gameIsOver){
-                    //score = 0;//parseInt(score * 0.5);
-                    //scoreText.text = scoreString + score;
-                    shipHit = 100;   
-                    music.stop();
-                    whaleSound.stop();
-                    game.state.start("Level2");
-               }
+               //score = 0;//parseInt(score * 0.5);
+               //scoreText.text = scoreString + score;
+               shipHit = 100;   
+               music.stop();
+               whaleSound.stop();
+               game.state.start("Level2");
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
-               if(!gameIsOver){
-                    //score = 0;//parseInt(score * 0.5);
-                    //scoreText.text = scoreString + score;
-                    shipHit = 100; 
-                    music.stop();
-                    whaleSound.stop();
-                    game.state.start("Level2"); 
-               }
+               //score = 0;//parseInt(score * 0.5);
+               //scoreText.text = scoreString + score;
+               shipHit = 100; 
+               music.stop();
+               whaleSound.stop();
+               game.state.start("Level2"); 
           });
 
           /*starGroup.forEach(function(star){
