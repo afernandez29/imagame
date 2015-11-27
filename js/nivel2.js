@@ -302,8 +302,9 @@ function initBackground(){
 }
 
 function initScore(){
-     scoreString = 'Score : ';
-     scoreText = game.add.text(10, 10, scoreString + score, { font: '34px Arial', fill: '#fff' });
+     score = new Score( game );
+     /*scoreString = 'Score : ';
+     scoreText = game.add.text(10, 10, scoreString + World.totalScore, { font: '34px Arial', fill: '#fff' });*/
 }
 
 function initVariables(){
