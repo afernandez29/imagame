@@ -215,6 +215,8 @@ function finish(){
 		helicopter.body.angle = 90;
 		helicopter.body.velocity.x+=300;
 		helicopter.body.allowGravity = false;
+        World.totalScore = scoreCredit.total;
+
 		World.goToLevel( 'Splash5' );
 }
 function setGameOver() {
