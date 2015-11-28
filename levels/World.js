@@ -88,7 +88,7 @@
     {
         this.game        = game;
 
-        this.remaining   = remaining || 5;
+        this.remaining   = remaining || 30;
         this.x           = this.game.width / 2 - 40;
         this.y           = 20;
         this.endCallback = endCallback;

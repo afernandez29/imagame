@@ -29,6 +29,9 @@
         this.game.load.audio( 'themeSong', 
             [ '/music/level3/Level3_Song.mp3', '/music/level3/Level3_Song.ogg' ] 
         );
+        this.game.load.audio( 'targetSound', 
+            [ '/music/level3/target_sound.mp3', '/music/level3/target_sound.ogg' ] 
+        );
     }
 
     GameContext.prototype.create = function()
@@ -62,7 +65,7 @@
         this.score = new Score( this.game );
         
         // Timer
-        this.timer = new Timer( this.game, this.end.bind( this ), 15 );
+        this.timer = new Timer( this.game, this.end.bind( this ) );
 
         // Initialize car
         this.car = new Car( this );
@@ -91,7 +94,7 @@
                         this.game.physics.arcade.overlap( this.car.carSprite, entity, function()
                         {
                             this.themeSong.stop();
-                            this.game.state.start( 'Level3', true, false );
+                            this.restart();
 
                             /*if( this.car.damage == 0 )
                             {
@@ -108,6 +111,7 @@
                     {
                         this.game.physics.arcade.collide( this.car.carSprite, entity, function( c, t )
                         {
+                            t.sound.play();
                             t.destroy();
 
                             this.gasBar.add( 120 );
@@ -138,6 +142,7 @@
     
     GameContext.prototype.restart = function()
     {
+        this.themeSong.stop();
         this.game.state.restart( true, false );
     }
     
@@ -386,6 +391,7 @@
     {
         this.gameContext = gameContext;
         
+        this.sound = this.gameContext.game.add.audio( 'targetSound' );
         this.targetSpeed = 350;
         this.targetPositions = [];
         this.currentLane = this.gameContext.game.rnd.between( 0, this.gameContext.maxNumberLanes - 1 );
@@ -498,7 +504,7 @@
     {
         if( this.currentGas - quantity <= 0 )
         {
-            this.gameContext.end();
+            this.gameContext.restart();
         }
         else
         {

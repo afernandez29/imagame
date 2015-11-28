@@ -112,7 +112,7 @@ var nivel1 = {
 			itemsInterval = this.game.time.events.loop( 1000, this.throwItems.bind(this) );
 			
 			// Duracion de juego 30 s
-			this.timer = new Timer( this.game, this.gameOver.bind( this ), 5 );
+			this.timer = new Timer( this.game, this.gameOver.bind( this ), 15 );
 
 			if( facing == 'left' )
 			{

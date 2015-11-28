@@ -5,6 +5,8 @@ var gameIsOver = false;
 var starGroup;
 var starDelay = 3000;
 var starSound;*/
+var starfield;
+
 
 var ship;
 var shipPosition;
@@ -31,16 +33,13 @@ var music;
 var boatSound;
 var whaleSound;
 var boatMoveSound;
+var starfield;
 
-window.onload = function() {  
-
-     /***************************
-     * GAME INSTANCE
-     ***************************/
+window.addEventListener( 'load', function()
+{
      World.addState( 'Level2', playGame );
-
      game = World.game;
-}
+} );
 
 var playGame = function(game){};
 

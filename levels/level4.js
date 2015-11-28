@@ -41,15 +41,11 @@ var game,
 	contador;
 var score = 0;
 
-window.onload = function() {  
-
-     /***************************
-     * GAME INSTANCE
-     ***************************/
-    World.addState( 'Level4', heliGame );
-
-    game = World.game;
-}
+window.addEventListener( 'load', function()
+{
+     World.addState( 'Level4', heliGame );
+     game = World.game;
+} );
 
 var heliGame = function(game){};
 
@@ -88,7 +84,7 @@ heliGame.prototype = {
     helicoptersound = game.add.audio('helicoptersound');
     municion = game.add.group();
     municion.enableBody = true;
-    initBackground();
+    initBackground4();
 	helicopter = this.game.add.sprite(0.5, 0.5, 'helicopter');
     this.game.physics.enable(helicopter, Phaser.Physics.ARCADE);
     this.game.physics.enable(municion, Phaser.Physics.ARCADE);
@@ -132,7 +128,7 @@ heliGame.prototype = {
 
           game.physics.startSystem(Phaser.Physics.ARCADE);
 
-          initKeys();
+          initKeys4();
 
 		reset();
 
@@ -338,7 +334,7 @@ function spawnaldea() {
 
     return aldea;
 }
-function initKeys(){
+function initKeys4(){
      key1 = game.input.keyboard.addKey(Phaser.Keyboard.UP);
      key1.onDown.add(flap);
 
@@ -347,7 +343,7 @@ function initKeys(){
 }
 
 
-function initBackground(){
+function initBackground4(){
 	//helicopter = game.add.sprite(0.5, 0.5, 200,200,'helicopter');
     background = game.add.tileSprite(0, 0, this.game.width, this.game.height, 'background');
     background.tileScale.x = 0.5;

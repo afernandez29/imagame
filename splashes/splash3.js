@@ -41,4 +41,3 @@ function create()
 }
 
 World.addState( 'Splash3', { preload: preload, create: create } );
-//World.goToLevel( 'Splash3' );

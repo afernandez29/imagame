@@ -41,4 +41,3 @@ function create()
 }
 
 World.addState( 'Splash4', { preload: preload, create: create } );
-World.goToLevel( 'Splash4' );
