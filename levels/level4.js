@@ -85,6 +85,7 @@ heliGame.prototype = {
     municion = game.add.group();
     municion.enableBody = true;
     initBackground4();
+    scoreCredit = new Score( this.game );
 	helicopter = this.game.add.sprite(0.5, 0.5, 'helicopter');
     this.game.physics.enable(helicopter, Phaser.Physics.ARCADE);
     this.game.physics.enable(municion, Phaser.Physics.ARCADE);
@@ -210,11 +211,11 @@ heliGame.prototype = {
      }
 }
 function finish(){
+		helicopter.body.allowGravity = false;
+		helicopter.body.angle = 90;
 		helicopter.body.velocity.x+=300;
 		helicopter.body.allowGravity = false;
-		scoreText.setText("Su puntuacion");
-		instText.setText(score);
-		instText.renderable=true;	
+		World.goToLevel( 'Splash5' );
 }
 function setGameOver() {
 	reset();
@@ -229,6 +230,7 @@ function flap() {
     }
 }
 function tirar () {
+	if(!gameStarted || gameFinish)return;
 	contador++;
     packageText.text = ( ( World.totalScore / 10 ) - contador ) + ' ';
     if(contador==CREDITS){
@@ -245,8 +247,7 @@ function tirar () {
 };
 function start() {
     helicopter.body.allowGravity = true;
-    scoreCredit = new Score( this.game );
-    scoreCredit.total = World.totalScore;
+    //scoreCredit.total = World.totalScore;
     //scoreText.setText(score);
     instText.renderable = false;
     scoreText.renderable = false;
@@ -299,7 +300,6 @@ function spawnfinger() {
     fingerYrandom =  game.rnd.integerInRange(0,1);
 	finger.scale.setTo(2,2);
 	//fingerY += (fingerYrandom ? -o() + game.rnd.integerInRange(0,100) : (o()) /4) + game.rnd.integerInRange(0,100) ;
-	console.log(finger.body.height);
 	finger.reset(this.game.width, (this.game.height - game.rnd.integerInRange(finger.body.height*2,finger.body.height -32)) );
 	
     //aldea.body.offset.y = flipped ? -aldea.body.height * 0 : 0;
@@ -368,7 +368,7 @@ function reset() {
     gameStarted = false;
     gameOver = false;
     score = 0;
-    scoreCredit.total = World.totalScore;
+    scoreCredit.reset();
     CREDITS = World.totalScore / 10;
     if( CREDITS <= 0 ){
         CREDITS = CREDITS_DEFAULT;

@@ -75,6 +75,12 @@
 
         this.scoreText.text = this.total  + ' ';
     }
+    Score.prototype.reset = function( )
+    {
+        this.total = 0;
+
+        this.scoreText.text = ' ';
+    }
 
     window.Score = Score;
 } )( top, Phaser, World );

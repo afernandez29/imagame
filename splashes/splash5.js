@@ -3,7 +3,7 @@ var game = World.game;
 function preload()
 {
     game.load.image( 'button', '/sprites/shared/play_button.gif' );
-    game.load.image( 'background','/sprites/level4/04_fondo.png' );
+    game.load.image( 'background','/sprites/Final/final.jpg' );
 }
 
 function create()
@@ -16,7 +16,7 @@ function create()
     	game.world.centerX - game.cache.getImage( "button" ).width / 2, 
     	game.world.centerY - game.cache.getImage( "button" ).height / 2 + 150, 
     	'button', 
-    	World.goToLevel.bind( this, 'Level4' ), 
+    	World.goToLevel.bind( this, 'Level5' ), 
     	this 
     );
 
@@ -40,4 +40,4 @@ function create()
    	enter.onDown.add( World.goToLevel.bind( this, 'Level4' ) );
 }
 
-World.addState( 'Splash4', { preload: preload, create: create } );
+World.addState( 'Splash5', { preload: preload, create: create } );
