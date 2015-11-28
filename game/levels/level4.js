@@ -53,14 +53,14 @@ heliGame.prototype = {
      preload: function(){
           var assets = {
         image: {
-        	background: ["/sprites/level4/04_fondo.png"],
-            municion: ['/sprites/level4/04_paq_ayuda.png'],
-            fence: ['/sprites/level4/fence.png'],
-            finger: ['/sprites/level4/Arbol.png']
+        	background: ["/game/sprites/level4/04_fondo.png"],
+            municion: ['/game/sprites/level4/04_paq_ayuda.png'],
+            fence: ['/game/sprites/level4/fence.png'],
+            finger: ['/game/sprites/level4/Arbol.png']
         },
         audio: {
             //flap: ['/music/level4/flap.wav'],
-            scoresound: ['/music/level4/collect.mp3']
+            scoresound: ['/game/music/level4/collect.mp3']
             //hurt: ['/music/level4/hurt.wav']
         }
     };
@@ -69,12 +69,12 @@ heliGame.prototype = {
             game.load[type].apply(game.load, [id].concat(assets[type][id]));
         });
     });
-    helicopter = game.load.image("helicopter" , "/sprites/level4/04_helicoptero.png");
-    aldea = game.load.image("aldea" , "/sprites/level4/04_aldea.png");
-    package = game.load.image("package" , "/sprites/level4/municion.gif");
-    game.load.audio('base', ['/music/level4/jungle_loop.mp3','/music/level4/jungle_loop.ogg']);
-    game.load.audio('gameoversound', ['/music/level4/game-over.mp3']);
-    game.load.audio('helicoptersound', ['/music/level4/helicopter.mp3']);
+    helicopter = game.load.image("helicopter" , "/game/sprites/level4/04_helicoptero.png");
+    aldea = game.load.image("aldea" , "/game/sprites/level4/04_aldea.png");
+    package = game.load.image("package" , "/game/sprites/level4/municion.gif");
+    game.load.audio('base', ['/game/music/level4/jungle_loop.mp3','/game/music/level4/jungle_loop.ogg']);
+    game.load.audio('gameoversound', ['/game/music/level4/game-over.mp3']);
+    game.load.audio('helicoptersound', ['/game/music/level4/helicopter.mp3']);
      },
      create: function(){
 

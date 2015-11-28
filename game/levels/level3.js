@@ -17,20 +17,20 @@
     
     GameContext.prototype.preload = function()
     {
-        this.game.load.image( "background", "/sprites/level3/03_fondo-01.png" );
-        this.game.load.image( "road", "/sprites/level3/03_camino-loop.png" );
-        this.game.load.image( "car", "/sprites/level3/03_coche.png" );
-        this.game.load.image( "camels", "/sprites/level3/03_camellos.png" );
-        this.game.load.image( "rocks", "/sprites/level3/03_rocas.png" );
-        this.game.load.image( "palm", "/sprites/level3/03_palmera.png" );
-        this.game.load.image( "gas", "/sprites/level3/03_gasolina.png" );
-        this.game.load.image( "cloud", "/sprites/level3/03_nube.png" );
+        this.game.load.image( "background", "/game/sprites/level3/03_fondo-01.png" );
+        this.game.load.image( "road", "/game/sprites/level3/03_camino-loop.png" );
+        this.game.load.image( "car", "/game/sprites/level3/03_coche.png" );
+        this.game.load.image( "camels", "/game/sprites/level3/03_camellos.png" );
+        this.game.load.image( "rocks", "/game/sprites/level3/03_rocas.png" );
+        this.game.load.image( "palm", "/game/sprites/level3/03_palmera.png" );
+        this.game.load.image( "gas", "/game/sprites/level3/03_gasolina.png" );
+        this.game.load.image( "cloud", "/game/sprites/level3/03_nube.png" );
 
         this.game.load.audio( 'themeSong', 
-            [ '/music/level3/Level3_Song.mp3', '/music/level3/Level3_Song.ogg' ] 
+            [ '/game/music/level3/Level3_Song.mp3', '/game/music/level3/Level3_Song.ogg' ] 
         );
         this.game.load.audio( 'targetSound', 
-            [ '/music/level3/target_sound.mp3', '/music/level3/target_sound.ogg' ] 
+            [ '/game/music/level3/target_sound.mp3', '/game/music/level3/target_sound.ogg' ] 
         );
     }
 
