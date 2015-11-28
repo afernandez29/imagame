@@ -19,15 +19,15 @@ var nivel1 = {
 		preload: function () {
 			facing = 'right';
 
-			this.game.load.spritesheet('player', 'sprites/level1/player.png', 354, 357);
-			this.game.load.image('background', 'sprites/level1/background.png');
-			this.game.load.image('eat', 'sprites/level1/comida_.png');
-			this.game.load.image('medicine', 'sprites/level1/medicina_.png');
-			this.game.load.image('book', 'sprites/level1/libro_.png');
-			this.game.load.image('stone', 'sprites/level1/stone_.png');
-			this.game.load.audio('collect', 'music/level1/collect.wav');
-			this.game.load.audio('errorCollect', 'music/level1/game-over.wav');
-          	this.game.load.audio('music', ['/music/level1/nivel1.mp3', '/music/level1/nivel1.ogg']);
+			this.game.load.spritesheet('player', '/game/sprites/level1/player.png', 354, 357);
+			this.game.load.image('background', '/game/sprites/level1/background.png');
+			this.game.load.image('eat', '/game/sprites/level1/comida_.png');
+			this.game.load.image('medicine', '/game/sprites/level1/medicina_.png');
+			this.game.load.image('book', '/game/sprites/level1/libro_.png');
+			this.game.load.image('stone', '/game/sprites/level1/stone_.png');
+			this.game.load.audio('collect', '/game/music/level1/collect.wav');
+			this.game.load.audio('errorCollect', '/game/music/level1/game-over.wav');
+          	this.game.load.audio('music', ['/game/music/level1/nivel1.mp3', '/game/music/level1/nivel1.ogg']);
 			
 		},
 

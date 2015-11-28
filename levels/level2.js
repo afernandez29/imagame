@@ -45,17 +45,17 @@ var playGame = function(game){};
 
 playGame.prototype = {
      preload: function(){
-          game.load.image("ship", "/sprites/level2/02_barco.png");
-          game.load.image("boya", "/sprites/level2/02_boya.png");
-          game.load.image("faro", "/sprites/level2/02_faro.png");
-          game.load.image("tortugas", "/sprites/level2/02_tortugas.png");
-          game.load.image("whale", "/sprites/level2/02_ballena.png");
-          game.load.image("whale_r", "/sprites/level2/02_ballena_r.png");
-          game.load.image('starfield', '/sprites/level2/02_fondo-mar.png');
-          game.load.audio('music', ['/music/level2/level2.mp3', '/music/level2/level2.ogg']);
-          game.load.audio('boatSound', ['/music/level2/boat.mp3', '/music/level2/boat.ogg']);
-          game.load.audio('whaleSound', ['/music/level2/whale.mp3', '/music/level2/whale.ogg']);
-          game.load.audio('boatMoveSound', ['/music/level2/boatMove.mp3', '/music/level2/boatMove.ogg']);
+          game.load.image("ship", "/game/sprites/level2/02_barco.png");
+          game.load.image("boya", "/game/sprites/level2/02_boya.png");
+          game.load.image("faro", "/game/sprites/level2/02_faro.png");
+          game.load.image("tortugas", "/game/sprites/level2/02_tortugas.png");
+          game.load.image("whale", "/game/sprites/level2/02_ballena.png");
+          game.load.image("whale_r", "/game/sprites/level2/02_ballena_r.png");
+          game.load.image('starfield', '/game/sprites/level2/02_fondo-mar.png');
+          game.load.audio('music', ['/game/music/level2/level2.mp3', '/game/music/level2/level2.ogg']);
+          game.load.audio('boatSound', ['/game/music/level2/boat.mp3', '/game/music/level2/boat.ogg']);
+          game.load.audio('whaleSound', ['/game/music/level2/whale.mp3', '/game/music/level2/whale.ogg']);
+          game.load.audio('boatMoveSound', ['/game/music/level2/boatMove.mp3', '/game/music/level2/boatMove.ogg']);
           /*game.load.audio('starSound', ['/music/level2/Ding.mp3', '/music/level2/Ding.ogg']);
           game.load.spritesheet('star', '/sprites/level2/01-04_estrella_bonus.png', 157, 150, 8);*/
      },
