@@ -2,8 +2,8 @@ var game = World.game;
 
 function preload()
 {
-    game.load.image( 'button', '/sprites/shared/play_button.gif' );
-    game.load.image( 'background','/sprites/level1/background.png' );
+    game.load.image( 'button', '/game/sprites/shared/play_button.gif' );
+    game.load.image( 'background','/game/sprites/level1/background.png' );
 }
 
 function create()
