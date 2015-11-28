@@ -62,7 +62,7 @@
         this.score = new Score( this.game );
         
         // Timer
-        this.timer = new Timer( this.game, this.end.bind( this ) );
+        this.timer = new Timer( this.game, this.end.bind( this ), 15 );
 
         // Initialize car
         this.car = new Car( this );
@@ -90,11 +90,14 @@
                     {
                         this.game.physics.arcade.overlap( this.car.carSprite, entity, function()
                         {
-                            if( this.car.damage == 0 )
+                            this.themeSong.stop();
+                            this.game.state.start( 'Level3', true, false );
+
+                            /*if( this.car.damage == 0 )
                             {
                                 this.car.damage = 100;
                                 this.gasBar.sustract( 30 );
-                            }
+                            }*/
                         }.bind( this ) );   
                     }
                 }

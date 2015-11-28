@@ -297,7 +297,7 @@ var nivel1 = {
 
 			movementTween.onComplete.add( function()
         	{
-				World.totalScore = this.score.total;
+				World.totalScore = this.score.total > 0 ? this.score.total : 100;
 				gameIsOver = false;
 				World.goToLevel( 'Splash2' );
         	}.bind( this ) );
