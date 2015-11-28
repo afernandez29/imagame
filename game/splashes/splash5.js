@@ -2,7 +2,7 @@ var game = World.game;
 
 function preload()
 {
-    game.load.image( 'background','/sprites/Final/final.jpg' );
+    game.load.image( 'background','/game/sprites/level4/04_fondo.png' );
 }
 
 function create()
