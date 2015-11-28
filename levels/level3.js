@@ -6,7 +6,6 @@
      * GAME INSTANCE
      ***************************/
     World.addState( 'Level3', new GameContext() );
-    //World.goToLevel( 'Level3' );
     
     /***************************
      * GAME CONTEXT
@@ -18,17 +17,17 @@
     
     GameContext.prototype.preload = function()
     {
-        this.game.load.image( "background", "/sprites/nivel3/03_fondo-01.png" );
-        this.game.load.image( "road", "/sprites/nivel3/03_camino-loop.png" );
-        this.game.load.image( "car", "/sprites/nivel3/03_coche.png" );
-        this.game.load.image( "camels", "/sprites/nivel3/03_camellos.png" );
-        this.game.load.image( "rocks", "/sprites/nivel3/03_rocas.png" );
-        this.game.load.image( "palm", "/sprites/nivel3/03_palmera.png" );
-        this.game.load.image( "gas", "/sprites/nivel3/03_gasolina.png" );
-        this.game.load.image( "cloud", "/sprites/nivel3/03_nube.png" );
+        this.game.load.image( "background", "/sprites/level3/03_fondo-01.png" );
+        this.game.load.image( "road", "/sprites/level3/03_camino-loop.png" );
+        this.game.load.image( "car", "/sprites/level3/03_coche.png" );
+        this.game.load.image( "camels", "/sprites/level3/03_camellos.png" );
+        this.game.load.image( "rocks", "/sprites/level3/03_rocas.png" );
+        this.game.load.image( "palm", "/sprites/level3/03_palmera.png" );
+        this.game.load.image( "gas", "/sprites/level3/03_gasolina.png" );
+        this.game.load.image( "cloud", "/sprites/level3/03_nube.png" );
 
         this.game.load.audio( 'themeSong', 
-            [ '/music/nivel3/Level3_Song.mp3', '/music/nivel3/Level3_Song.ogg' ] 
+            [ '/music/level3/Level3_Song.mp3', '/music/level3/Level3_Song.ogg' ] 
         );
     }
 
@@ -154,11 +153,8 @@
 
         this.movementTween.onComplete.add( function()
         {
-            //this.game.lockRender = true;
-            
             this.themeSong.stop();
-            
-            //World.goToLevel( 'Splash4' );
+            World.goToLevel( 'Splash4' );
         }.bind( this ) );
     }
     
@@ -209,7 +205,7 @@
         
         this.damage = 0;
         this.carTurnSpeed = 250;
-        this.carOutOfScreen = 1000;
+        this.carOutOfScreen = 2500;
         this.currentLane = 0;
         this.carPositions = [];        
         

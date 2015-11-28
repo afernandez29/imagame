@@ -1,5 +1,3 @@
-//Initialize Phaser, and create a sWidth px * sHeight px game
-//var game = new Phaser.Game(sWidth, sHeight, Phaser.AUTO, 'gameDiv');
 var game = World.game;
 
 var score = 0;
@@ -11,8 +9,9 @@ var medicines;
 var books;
 var stones;
 var dir;
+var gameIsOver = false;
 
-KG = 150;
+KG = 10;
 
 //Create our 'main' state that will contain the game
 var nivel1 = {
@@ -20,14 +19,14 @@ var nivel1 = {
 		preload: function () {
 			facing = 'right';
 
-			this.game.load.spritesheet('player', 'sprites/nivel1/player.png', 354, 357);
-			this.game.load.image('background', 'splashes/nivel1/background.png');
-			this.game.load.image('eat', 'sprites/nivel1/comida_.png');
-			this.game.load.image('medicine', 'sprites/nivel1/medicina_.png');
-			this.game.load.image('book', 'sprites/nivel1/libro_.png');
-			this.game.load.image('stone', 'sprites/nivel1/stone_.png');
-			this.game.load.audio('collect', 'music/nivel1/collect.wav');
-			this.game.load.audio('errorCollect', 'music/nivel1/game-over.wav');
+			this.game.load.spritesheet('player', 'sprites/level1/player.png', 354, 357);
+			this.game.load.image('background', 'sprites/level1/background.png');
+			this.game.load.image('eat', 'sprites/level1/comida_.png');
+			this.game.load.image('medicine', 'sprites/level1/medicina_.png');
+			this.game.load.image('book', 'sprites/level1/libro_.png');
+			this.game.load.image('stone', 'sprites/level1/stone_.png');
+			this.game.load.audio('collect', 'music/level1/collect.wav');
+			this.game.load.audio('errorCollect', 'music/level1/game-over.wav');
 			
 		},
 
@@ -37,14 +36,14 @@ var nivel1 = {
 
 			this.game.stage.backgroundColor = '#71c5cf';
 			bg = this.game.add.image(0, 0, 'background');
-			bg.scale.setTo(World.scaleCoef, World.scaleCoef);
+			bg.scale.setTo( World.scaleCoef, World.scaleCoef );
 
 			this.game.physics.arcade.gravity.y = 250;
 
 			player = this.game.add.sprite(32, 32, 'player');
 			this.game.physics.enable(player, Phaser.Physics.ARCADE);
 			player.body.collideWorldBounds = true;
-			player.scale.setTo(World.scaleCoef, World.scaleCoef);
+			player.scale.setTo( World.scaleCoef, World.scaleCoef );
 			
 			player.animations.add('left', [0, 1, 2], 10, true);
 			player.animations.add('turn', [3], 20, true);
@@ -105,19 +104,17 @@ var nivel1 = {
 			dir = "";
 
 			// Audio
-			audioCollect = this.game.add.audio('collect');
-		    audioError = this.game.add.audio('errorCollect');
+			audioCollect = this.game.add.audio( 'collect' );
+		    audioError = this.game.add.audio( 'errorCollect' );
 			audioError.volume += 10;
 			
 			// lanzar items
-			itemsInterval = setInterval(this.throwItems.bind(this), 1000);
+			itemsInterval = this.game.time.events.loop( 1000, this.throwItems.bind(this) );
 			
 			// Duracion de juego 30 s
-			this.timer = new Timer( this.game, this.gameOver.bind(this) );
+			this.timer = new Timer( this.game, this.gameOver.bind( this ), 5 );
 
-			//setTimeout(this.gameOver, 31000); 
-
-			if (facing == 'left')
+			if( facing == 'left' )
 			{
 				player.frame = 0;
 			}else
@@ -127,35 +124,32 @@ var nivel1 = {
 		},
 
 		update: function () {
-			if (this.timer.remaining < 1){
-                        	var tween = game.add.tween(player).to( { x: this.game.world.width * 2 }, 500, Phaser.Easing.Linear.None, true);
-			}	
-			
-			if (cursors.left.isDown || dir == 'left')
+			if( !gameIsOver )
 			{
-				player.body.velocity.x = -550;
+				if (cursors.left.isDown || dir == 'left')
+				{
+					player.body.velocity.x = -550;
 
-					player.animations.play('left');
-					facing = 'left';
-				
-				dir = "";
-			}
-			else if (cursors.right.isDown || dir == 'right')
-			{
-				player.body.velocity.x = 550;
+						player.animations.play('left');
+						facing = 'left';
+					
+					dir = "";
+				}
+				else if (cursors.right.isDown || dir == 'right')
+				{
+					player.body.velocity.x = 550;
 
-					player.animations.play('right');
-					facing = 'right';
-				dir = "";
-			}
+						player.animations.play('right');
+						facing = 'right';
+					dir = "";
+				}
 
-			
-
-			// Conseguir punto
-	        this.game.physics.arcade.collide(player, eats, this.getEatPoint, null, this);
-	        this.game.physics.arcade.collide(player, medicines, this.getMedicinePoint, null, this);
-	        this.game.physics.arcade.collide(player, books, this.getBookPoint, null, this);
-	        this.game.physics.arcade.collide(player, stones, this.getStone, null, this);
+				// Conseguir punto
+		        this.game.physics.arcade.collide(player, eats, this.getEatPoint, null, this);
+		        this.game.physics.arcade.collide(player, medicines, this.getMedicinePoint, null, this);
+		        this.game.physics.arcade.collide(player, books, this.getBookPoint, null, this);
+		        this.game.physics.arcade.collide(player, stones, this.getStone, null, this);
+		    }		
 			
 		},		
 		
@@ -235,7 +229,6 @@ var nivel1 = {
 		    //  Grab the first bullet we can from the pool
 		    stone = stones.getFirstDead(false);
 
-
 		    if (stone)
 		    {
 		        var rnd = this.game.rnd.integerInRange(0, this.game.world.width - 100) + 100;
@@ -282,37 +275,33 @@ var nivel1 = {
 		},
 				
 		gameOver: function(){
-		    eats.removeAll();
-		    medicines.removeAll();
-		    clearInterval(itemsInterval);
-			World.totalScore = this.score.total;
-			World.goToLevel('Splash2');
-		},
+			gameIsOver = true;
 
-		render: function () {
+			eats.removeAll();
+			medicines.removeAll();
+			game.time.events.remove( itemsInterval );
+
+			player.body.collideWorldBounds = false;
+			this.game.physics.arcade.gravity.y = 0;
+
+			player.body.velocity.x = 550;
+			player.animations.play('right');
+			facing = 'right';
+
+			var movementTween = game.add.tween( player ).to(
+				{ x: World.game.width * 1.5 }, 
+				2500, 
+				Phaser.Easing.Linear.None, 
+				true 
+			);
+
+			movementTween.onComplete.add( function()
+        	{
+				World.totalScore = this.score.total;
+				gameIsOver = false;
+				World.goToLevel( 'Splash2' );
+        	}.bind( this ) );
 		}
-
 };
 
-
-var splash2 = {
-		
-		preload: function(){
-			
-		},
-
-		create: function(){
-			this.game.stage.backgroundColor = '#fabada';
-			
-			var t = this.game.add.text(10, 10, "Ha conseguido " + World.totalScore + " Kg de ayuda. Pasa a siguiente nivel.", { font: '16px Arial', fill: '#fff' });
-			this.game.input.onTap.addOnce(this.nextGame,this);
-		},
-		
-		nextGame: function(){
-			World.goToLevel('splash2');
-		}
-}
-//Add and start the 'main' state to start the game
-World.addState('nivel1', nivel1);
-//World.addState('splash2', splash2);
-//World.goToLevel('nivel1');
+World.addState( 'Level1', nivel1 );

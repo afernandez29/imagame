@@ -28,7 +28,7 @@
             this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
             this.game.scale.maxWidth = 1024 * window.devicePixelRatio;
             this.game.scale.maxHeight = 576 * window.devicePixelRatio;
-            this.game.scale.forceLandscape = true;
+            //this.game.scale.forceLandscape = true;
             this.game.scale.pageAlignHorizontally = true;
             this.game.scale.pageAlignVertically = true;
         }.bind( this ) );
@@ -46,7 +46,7 @@
     {
         this.game      = game;
 
-        this.total     = 0;
+        this.total     = World.totalScore > 0 ? World.totalScore : 0;
         this.x         = this.game.width - 100;
         this.y         = 10;
         this.scoreText = this.draw();
@@ -84,11 +84,11 @@
  ***************************/
 ( function( window, Phaser )
 {
-    function Timer( game, endCallback )
+    function Timer( game, endCallback, remaining )
     {
         this.game        = game;
 
-        this.remaining   = 30;
+        this.remaining   = remaining || 5;
         this.x           = this.game.width / 2 - 40;
         this.y           = 20;
         this.endCallback = endCallback;
@@ -110,6 +110,7 @@
     {
         if( this.remaining - time < 0 )
         {
+            this.game.time.events.remove( this.loop );
             this.endCallback();
         }
         else

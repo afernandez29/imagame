@@ -1,8 +1,6 @@
 var game;
 var gameIsOver = false;
 
-var score = 0;
-
 /*var star;
 var starGroup;
 var starDelay = 3000;
@@ -40,7 +38,6 @@ window.onload = function() {
      * GAME INSTANCE
      ***************************/
      World.addState( 'Level2', playGame );
-     World.goToLevel( 'Level2' );
 
      game = World.game;
 }
@@ -49,19 +46,19 @@ var playGame = function(game){};
 
 playGame.prototype = {
      preload: function(){
-          game.load.image("ship", "/sprites/nivel2/02_barco.png");
-          game.load.image("boya", "/sprites/nivel2/02_boya.png");
-          game.load.image("faro", "/sprites/nivel2/02_faro.png");
-          game.load.image("tortugas", "/sprites/nivel2/02_tortugas.png");
-          game.load.image("whale", "/sprites/nivel2/02_ballena.png");
-          game.load.image("whale_r", "/sprites/nivel2/02_ballena_r.png");
-          game.load.image('starfield', '/sprites/nivel2/02_fondo-mar.png');
-          game.load.audio('music', ['/music/nivel2/level2.mp3', '/music/nivel2/level2.ogg']);
-          game.load.audio('boatSound', ['/music/nivel2/boat.mp3', '/music/nivel2/boat.ogg']);
-          game.load.audio('whaleSound', ['/music/nivel2/whale.mp3', '/music/nivel2/whale.ogg']);
-          game.load.audio('boatMoveSound', ['/music/nivel2/boatMove.mp3', '/music/nivel2/boatMove.ogg']);
-          /*game.load.audio('starSound', ['/music/nivel2/Ding.mp3', '/music/nivel2/Ding.ogg']);
-          game.load.spritesheet('star', '/sprites/nivel2/01-04_estrella_bonus.png', 157, 150, 8);*/
+          game.load.image("ship", "/sprites/level2/02_barco.png");
+          game.load.image("boya", "/sprites/level2/02_boya.png");
+          game.load.image("faro", "/sprites/level2/02_faro.png");
+          game.load.image("tortugas", "/sprites/level2/02_tortugas.png");
+          game.load.image("whale", "/sprites/level2/02_ballena.png");
+          game.load.image("whale_r", "/sprites/level2/02_ballena_r.png");
+          game.load.image('starfield', '/sprites/level2/02_fondo-mar.png');
+          game.load.audio('music', ['/music/level2/level2.mp3', '/music/level2/level2.ogg']);
+          game.load.audio('boatSound', ['/music/level2/boat.mp3', '/music/level2/boat.ogg']);
+          game.load.audio('whaleSound', ['/music/level2/whale.mp3', '/music/level2/whale.ogg']);
+          game.load.audio('boatMoveSound', ['/music/level2/boatMove.mp3', '/music/level2/boatMove.ogg']);
+          /*game.load.audio('starSound', ['/music/level2/Ding.mp3', '/music/level2/Ding.ogg']);
+          game.load.spritesheet('star', '/sprites/level2/01-04_estrella_bonus.png', 157, 150, 8);*/
      },
      create: function(){
 
@@ -110,8 +107,6 @@ playGame.prototype = {
           }
 
           game.physics.arcade.collide(ship, whaleGroup, function(){
-               //score = 0;//parseInt(score * 0.5);
-               //scoreText.text = scoreString + score;
                shipHit = 100;   
                music.stop();
                whaleSound.stop();
@@ -119,8 +114,6 @@ playGame.prototype = {
           });
 
           game.physics.arcade.collide(ship, barrierGroup, function(){
-               //score = 0;//parseInt(score * 0.5);
-               //scoreText.text = scoreString + score;
                shipHit = 100; 
                music.stop();
                whaleSound.stop();
@@ -378,9 +371,9 @@ function end(){
 
      movementTween = game.add.tween( ship ).to(
        { 
-           y: -game.height * 2.5,
+           y: -game.height * 1.5,
        }, 
-       3000, 
+       2500, 
        Phaser.Easing.Linear.None, 
        true 
      );
@@ -389,8 +382,6 @@ function end(){
      {
           music.stop();
           whaleSound.stop();
-          //starSound.stop();
-          //game.lockRender = true;
 
           World.goToLevel( 'Splash3' );
      });
