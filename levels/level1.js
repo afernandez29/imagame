@@ -27,6 +27,7 @@ var nivel1 = {
 			this.game.load.image('stone', 'sprites/level1/stone_.png');
 			this.game.load.audio('collect', 'music/level1/collect.wav');
 			this.game.load.audio('errorCollect', 'music/level1/game-over.wav');
+          	this.game.load.audio('music', ['/music/level1/nivel1.mp3', '/music/level1/nivel1.ogg']);
 			
 		},
 
@@ -106,7 +107,10 @@ var nivel1 = {
 			// Audio
 			audioCollect = this.game.add.audio( 'collect' );
 		    audioError = this.game.add.audio( 'errorCollect' );
+		    audioMusic = this.game.add.audio( 'music' );
 			audioError.volume += 10;
+
+			audioMusic.play();
 			
 			// lanzar items
 			itemsInterval = this.game.time.events.loop( 1000, this.throwItems.bind(this) );
@@ -297,6 +301,7 @@ var nivel1 = {
 
 			movementTween.onComplete.add( function()
         	{
+				audioMusic.stop();
 				World.totalScore = this.score.total > 0 ? this.score.total : 100;
 				gameIsOver = false;
 				World.goToLevel( 'Splash2' );
